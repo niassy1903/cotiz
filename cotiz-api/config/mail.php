@@ -5,6 +5,11 @@ if ($mailFromAddress === '${MAIL_USERNAME}') {
     $mailFromAddress = env('MAIL_USERNAME');
 }
 
+$mailFromName = env('MAIL_FROM_NAME', 'Cotiz.finance');
+if ($mailFromName === '${APP_NAME}') {
+    $mailFromName = 'Cotiz.finance';
+}
+
 return [
 
     /*
@@ -118,7 +123,7 @@ return [
 
     'from' => [
         'address' => $mailFromAddress ?: env('MAIL_USERNAME', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
+        'name' => $mailFromName,
     ],
 
 ];
