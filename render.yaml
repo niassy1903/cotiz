@@ -19,9 +19,9 @@ services:
       - key: APP_URL
         sync: false
       - key: FRONTEND_URL
-        sync: false
+        value: https://cotiz-one.vercel.app
       - key: CORS_ALLOWED_ORIGINS
-        sync: false
+        value: https://cotiz-one.vercel.app
       - key: DB_CONNECTION
         value: mongodb
       - key: DB_DSN

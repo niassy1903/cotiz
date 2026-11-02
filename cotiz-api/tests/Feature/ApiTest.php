@@ -304,6 +304,7 @@ class ApiTest extends TestCase
     public function test_password_reset_revokes_existing_access_tokens(): void
     {
         Notification::fake();
+        config(['app.frontend_url' => 'https://cotiz-one.vercel.app']);
         $user = User::factory()->create();
         $user->createToken('test-device');
 
@@ -313,6 +314,14 @@ class ApiTest extends TestCase
             $token = $notification->token;
 
             return true;
+        });
+        Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user): bool {
+            $resetUrl = $notification->toMail($user)->actionUrl;
+            parse_str((string) parse_url($resetUrl, PHP_URL_QUERY), $query);
+
+            return parse_url($resetUrl, PHP_URL_HOST) === 'cotiz-one.vercel.app'
+                && ($query['email'] ?? null) === $user->email
+                && filled($query['reset_token'] ?? null);
         });
 
         $this->postJson('/api/v1/auth/reset-password', [
