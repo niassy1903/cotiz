@@ -1,11 +1,12 @@
 FROM php:8.4-apache
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends $PHPIZE_DEPS libssl-dev unzip \
+    && apt-get install -y --no-install-recommends $PHPIZE_DEPS libonig-dev libssl-dev libxml2-dev unzip \
+    && docker-php-ext-install -j"$(nproc)" dom mbstring \
     && pecl install mongodb-1.21.5 \
     && docker-php-ext-enable mongodb \
     && a2enmod rewrite \
-    && apt-get purge -y --auto-remove $PHPIZE_DEPS libssl-dev \
+    && apt-get purge -y --auto-remove $PHPIZE_DEPS libonig-dev libssl-dev libxml2-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -19,8 +20,10 @@ RUN mkdir -p storage/framework/cache/data storage/framework/sessions \
         --no-dev \
         --no-interaction \
         --no-progress \
+        --no-scripts \
         --prefer-dist \
         --optimize-autoloader \
+    && php artisan package:discover --ansi \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R ug+rwX storage bootstrap/cache
 
