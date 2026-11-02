@@ -316,12 +316,19 @@ class ApiTest extends TestCase
             return true;
         });
         Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user): bool {
-            $resetUrl = $notification->toMail($user)->actionUrl;
+            $mail = $notification->toMail($user);
+            $resetUrl = $mail->actionUrl;
             parse_str((string) parse_url($resetUrl, PHP_URL_QUERY), $query);
+            $html = view($mail->view['html'], $mail->viewData)->render();
+            $text = view($mail->view['text'], $mail->viewData)->render();
 
             return parse_url($resetUrl, PHP_URL_HOST) === 'cotiz-one.vercel.app'
                 && ($query['email'] ?? null) === $user->email
-                && filled($query['reset_token'] ?? null);
+                && filled($query['reset_token'] ?? null)
+                && $mail->subject === 'Réinitialisez votre mot de passe Cotiz'
+                && str_contains($html, 'Réinitialiser mon mot de passe')
+                && str_contains($html, e($resetUrl))
+                && str_contains($text, $resetUrl);
         });
 
         $this->postJson('/api/v1/auth/reset-password', [
