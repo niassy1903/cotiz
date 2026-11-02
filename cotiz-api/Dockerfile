@@ -23,7 +23,7 @@ RUN mkdir -p storage/framework/cache/data storage/framework/sessions \
         --no-scripts \
         --prefer-dist \
         --optimize-autoloader \
-    && php artisan package:discover --ansi \
+    && DB_CONNECTION=sqlite DB_DATABASE=:memory: CACHE_STORE=array SESSION_DRIVER=array QUEUE_CONNECTION=sync php artisan package:discover --ansi \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R ug+rwX storage bootstrap/cache
 

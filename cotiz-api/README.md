@@ -64,7 +64,7 @@ Le fichier `../render.yaml` déclare un service Web Docker. Dans Render, créez 
 
 Après le premier déploiement, exécutez `php artisan migrate --force` une seule fois depuis un shell du service. Le contrôle de santé utilise `/up`. Les services gratuits Render peuvent s'endormir après une période d'inactivité; MongoDB Atlas reste la base de données persistante.
 
-Le service Web ne lance pas automatiquement le planificateur Laravel. Pour les tâches récurrentes (génération des échéances et purge), configurez un Cron Job Render qui exécute `php artisan schedule:run` chaque minute, ou utilisez un worker de fond.
+La découverte des paquets pendant le build utilise temporairement SQLite en mémoire et des pilotes cache/session/queue sans base de données; la configuration MongoDB Atlas reste celle du runtime. Le service Web ne lance pas automatiquement le planificateur Laravel. Pour les tâches récurrentes (génération des échéances et purge), configurez un Cron Job Render qui exécute `php artisan schedule:run` chaque minute, ou utilisez un worker de fond.
 
 ## Contrat et sécurité
 
