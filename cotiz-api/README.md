@@ -23,7 +23,7 @@ MAIL_FROM_NAME="${APP_NAME}"
 
 Le code source et `.env.example` ne contiennent aucun secret. En production, configurez le secret dans le gestionnaire de secrets de la plateforme et assurez-vous que `FRONTEND_URL` pointe vers l’URL publique de Cotiz.
 
-Le projet utilise `mongodb/mongodb:^1.20` avec `mongodb/laravel-mongodb:^5.12`; Composer résout actuellement la bibliothèque en 1.21.5. Vérifiez que l’extension native MongoDB 1.21.x est chargée par le même PHP CLI utilisé pour Composer et Artisan :
+Le projet utilise `mongodb/mongodb:^1.20` avec `mongodb/laravel-mongodb:^5.12`; Composer résout actuellement la bibliothèque en 1.21.5. L’image Render utilise PHP 8.4, également requis par les versions Symfony enregistrées dans `composer.lock`. Vérifiez que l’extension native MongoDB 1.21.x est chargée par le même PHP CLI utilisé pour Composer et Artisan :
 
 ```sh
 php -r '$version = phpversion("mongodb"); if (! $version || version_compare($version, "1.21.0", "<") || version_compare($version, "2.0.0", ">=") || ! class_exists("MongoDB\\Driver\\Manager")) { fwrite(STDERR, "Extension MongoDB PHP 1.21.x requise\n"); exit(1); } echo "Extension PHP mongodb $version active\n";'
