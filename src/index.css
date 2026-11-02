@@ -1,0 +1,215 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color: #0f172a;
+    background-color: #f8fafc;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+.auth-shell {
+  background:
+    radial-gradient(ellipse at 82% 15%, rgb(230 240 232 / 70%), transparent 32%),
+    #f7f8f4;
+}
+
+.auth-showcase {
+  min-height: max(100vh, 680px);
+  background:
+    radial-gradient(ellipse at 20% 5%, rgb(20 128 87 / 48%), transparent 42%),
+    linear-gradient(145deg, #064e3b 0%, #075a43 54%, #0c493a 100%);
+}
+
+.auth-slide {
+  transition: opacity 900ms ease, transform 7s ease;
+}
+
+.auth-slide-image {
+  filter: saturate(0.82);
+}
+
+.auth-slide-overlay {
+  background: linear-gradient(115deg, rgb(4 55 42 / 92%) 5%, rgb(4 65 48 / 76%) 52%, rgb(4 55 42 / 56%) 100%);
+}
+
+.auth-logo-frame {
+  box-shadow: 0 12px 30px rgb(3 35 25 / 22%);
+}
+
+.auth-trust-pill {
+  backdrop-filter: blur(12px);
+}
+
+.auth-form-side {
+  background: transparent;
+}
+
+.auth-card {
+  border-color: rgb(255 255 255 / 90%);
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 28px 80px -34px rgb(15 76 55 / 26%), 0 2px 8px rgb(15 76 55 / 4%);
+  backdrop-filter: blur(18px);
+}
+
+.auth-title {
+  color: #102a20;
+  font-size: clamp(1.7rem, 3vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.045em;
+}
+
+.auth-subtitle {
+  margin-top: 0.5rem;
+  color: #64746d;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.auth-mode-tabs {
+  border: 1px solid #e8eee8;
+  background: #f3f6f2;
+}
+
+.auth-mode-tabs button {
+  min-height: 2.75rem;
+  border-radius: 0.65rem;
+  transition: color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.auth-mode-tabs .auth-tab-active {
+  color: #075a43;
+  box-shadow: 0 2px 8px rgb(15 76 55 / 10%);
+}
+
+.auth-card label {
+  color: #344a40;
+  font-size: 0.78rem;
+}
+
+.auth-card input:not([type="checkbox"]) {
+  min-height: 3rem;
+  border-color: #dce5dd;
+  border-radius: 0.75rem;
+  background-color: #fcfdfb;
+}
+
+.auth-card input:not([type="checkbox"]):focus {
+  border-color: #07805b;
+  box-shadow: 0 0 0 3px rgb(7 128 91 / 12%);
+}
+
+.auth-card input[type="checkbox"] {
+  accent-color: #07805b;
+}
+
+.auth-link {
+  transition: color 180ms ease;
+}
+
+.auth-submit {
+  min-height: 3.15rem;
+  border-radius: 0.8rem;
+  background: linear-gradient(100deg, #087653 0%, #056246 100%);
+  box-shadow: 0 10px 24px -12px rgb(6 95 70 / 72%);
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.auth-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: linear-gradient(100deg, #076747 0%, #044d39 100%);
+  box-shadow: 0 14px 28px -14px rgb(6 95 70 / 80%);
+}
+
+.auth-otp-intro {
+  padding: 1.1rem 1.1rem 0;
+  text-align: center;
+}
+
+.auth-otp-icon {
+  display: grid;
+  width: 3.25rem;
+  height: 3.25rem;
+  margin: 0 auto;
+  place-items: center;
+  border: 1px solid #dceee2;
+  border-radius: 1rem;
+  background: linear-gradient(145deg, #f0faf3, #fff7ed);
+  color: #087653;
+}
+
+.auth-card input.auth-otp-input {
+  min-height: 4.25rem;
+  border-color: #cee1d2;
+  background: #f9fcf9;
+  color: #075a43;
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: 0.55rem;
+  text-align: center;
+}
+
+.auth-card input.auth-otp-input::placeholder {
+  color: #c6d5ca;
+  letter-spacing: 0.55rem;
+}
+
+.auth-otp-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  color: #64746d;
+  font-size: 0.8rem;
+}
+
+.auth-otp-timer svg {
+  color: #f47721;
+}
+
+.font-tabular {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 1023px) {
+  .auth-showcase {
+    display: none;
+  }
+
+  .auth-form-side {
+    min-height: 100svh;
+    padding: 1.25rem;
+  }
+
+  .auth-card {
+    padding: clamp(1.25rem, 5vw, 2rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-slide,
+  .auth-mode-tabs button,
+  .auth-link,
+  .auth-submit {
+    transition-duration: 0.01ms;
+  }
+}
+
+/* Custom scrollbars for data tables and panels */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

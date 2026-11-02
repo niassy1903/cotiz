@@ -1,0 +1,6 @@
+{
+  "name": "Cotiz - Gestion Financière Communautaire",
+  "description": "Plateforme SaaS moderne de gestion financière et de cotisations pour dahiras, tontines et associations en Afrique de l'Ouest (FCFA, Wave, Orange Money).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
