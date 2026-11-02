@@ -42,7 +42,7 @@ L’API JSON versionnée est servie sous `/api/v1`. Le frontend charge les donn�
 - Notifications, journal d’audit, invitations uniques expirant sous 72 heures et codes de parrainage persistés.
 - Rôles : `superadmin` global, puis `admin`/`member` par organisation.
 
-Les paiements Wave et Orange Money sont enregistrés pour validation manuelle : aucun encaissement réel, webhook opérateur, envoi SMS ni fournisseur de courriel de production n’est configuré dans ce dépôt. Les commissions d’affiliation restent à zéro jusqu’à l’intégration d’un système de facturation réel.
+Les paiements Wave et Orange Money sont enregistrés pour validation manuelle : aucun encaissement réel ni webhook opérateur n’est configuré. L’envoi des codes de connexion et des liens de récupération utilise le transport Resend; une clé API et un domaine expéditeur vérifié sont requis en production. L’envoi SMS n’est pas configuré. Les commissions d’affiliation restent à zéro jusqu’à l’intégration d’un système de facturation réel.
 
 Le planificateur crée les échéances arrivées à terme et purge les organisations après leur délai de suppression de 30 jours. En production, configurez le cron Laravel Scheduler plutôt que `schedule:work`.
 

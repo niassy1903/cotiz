@@ -8,20 +8,16 @@ API REST JSON construite avec Laravel 13, Sanctum et MongoDB Atlas.
 
 Chaque connexion par mot de passe demande ensuite un code à 6 chiffres envoyé par courriel. Le code est à usage unique, expire après 15 minutes et est limité à cinq tentatives. Le renvoi invalide le code précédent.
 
-Configurez SMTP dans le `.env` local ignoré par Git. Pour Gmail, utilisez l’adresse du compte et un mot de passe d’application Google (pas le mot de passe normal du compte) :
+Le déploiement Render utilise Resend via son API HTTPS, car les ports SMTP sortants sont bloqués sur les services gratuits. Créez une clé API Resend et vérifiez un domaine d’envoi que vous possédez. Configurez ensuite `RESEND_API_KEY` et `MAIL_FROM_ADDRESS` avec une adresse de ce domaine (par exemple `connexion@votre-domaine.tld`) dans les variables d’environnement Render. N’utilisez pas une adresse Gmail comme expéditeur Resend sans avoir vérifié son domaine.
 
 ```dotenv
-MAIL_MAILER=smtp
-MAIL_SCHEME=smtp
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=adresse@gmail.com
-MAIL_PASSWORD=mot-de-passe-application
-MAIL_FROM_ADDRESS="${MAIL_USERNAME}"
+MAIL_MAILER=resend
+RESEND_API_KEY=re_xxxxxxxxx
+MAIL_FROM_ADDRESS=connexion@votre-domaine.tld
 MAIL_FROM_NAME="${APP_NAME}"
 ```
 
-Le code source et `.env.example` ne contiennent aucun secret. En production, configurez le secret dans le gestionnaire de secrets de la plateforme et assurez-vous que `FRONTEND_URL` pointe vers l’URL publique de Cotiz.
+Le code source et `.env.example` ne contiennent aucun secret. Pour le développement local, vous pouvez définir une clé Resend dans le `.env` ignoré par Git ou conserver `MAIL_MAILER=log` pour écrire les messages dans les logs sans les envoyer.
 
 Le projet utilise `mongodb/mongodb:^1.20` avec `mongodb/laravel-mongodb:^5.12`; Composer résout actuellement la bibliothèque en 1.21.5. L’image Render utilise PHP 8.4, également requis par les versions Symfony enregistrées dans `composer.lock`. Vérifiez que l’extension native MongoDB 1.21.x est chargée par le même PHP CLI utilisé pour Composer et Artisan :
 
@@ -60,7 +56,8 @@ Le fichier `../render.yaml` déclare un service Web Docker. Dans Render, créez 
 - `APP_URL` : URL publique du service API sur Render.
 - `FRONTEND_URL` et `CORS_ALLOWED_ORIGINS` : URL publique du frontend (sans slash final).
 - `DB_DSN` : URI de connexion MongoDB Atlas; ne la commitez jamais.
-- `MAIL_USERNAME` et `MAIL_PASSWORD` : compte et identifiants SMTP. L’expéditeur reprend `MAIL_USERNAME` par défaut; si `MAIL_FROM_ADDRESS` est défini manuellement dans Render, saisissez une vraie adresse e-mail, pas le texte `${MAIL_USERNAME}`.
+- `RESEND_API_KEY` : clé API créée dans Resend, à saisir comme secret Render.
+- `MAIL_FROM_ADDRESS` : adresse d’expédition sur un domaine vérifié dans Resend.
 
 Après le premier déploiement, exécutez `php artisan migrate --force` une seule fois depuis un shell du service. Le contrôle de santé utilise `/up`. Les services gratuits Render peuvent s'endormir après une période d'inactivité; MongoDB Atlas reste la base de données persistante.
 
