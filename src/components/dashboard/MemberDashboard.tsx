@@ -15,6 +15,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { formatFCFA, formatDate } from '../../utils/formatters';
+import { usePreferences } from '../../context/PreferencesContext';
 
 interface MemberDashboardProps {
   onOpenMakePayment: (contributionId?: string) => void;
@@ -26,6 +27,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
   onNavigateTab,
 }) => {
   const { user } = useAuth();
+  const { t } = usePreferences();
   const {
     currentOrg,
     orgMembers,
@@ -72,14 +74,14 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Bonjour, {user?.firstName || currentMember?.firstName} !
+              {t('Bonjour')}, {user?.firstName || currentMember?.firstName} !
             </h1>
             <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700">
-              Espace Membre
+              {t('Espace Membre')}
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            {currentOrg.name} ({currentOrg.type}) · Devise FCFA
+            {currentOrg.name} ({currentOrg.type}) · {t('Devise FCFA')}
           </p>
         </div>
 
@@ -90,34 +92,34 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
           onClick={() => onOpenMakePayment()}
           leftIcon={<CreditCard className="w-4 h-4" />}
         >
-          Payer une cotisation
+          {t('Payer une cotisation')}
         </Button>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          label="Cotisations Dues"
+          label={t('Cotisations Dues')}
           value={isUpToDate ? '0' : '1'}
-          subValue={isUpToDate ? 'Toutes vos cotisations sont à jour' : 'Échéance en cours'}
+          subValue={isUpToDate ? t('Toutes vos cotisations sont à jour') : t('Échéance en cours')}
           icon={<Clock className="w-4 h-4 text-amber-600" />}
         />
         <StatCard
-          label="Montant total dû"
+          label={t('Montant total dû')}
           value={formatFCFA(Math.max(0, totalDueAmount))}
-          subValue="Pour le mois en cours"
+          subValue={t('Pour le mois en cours')}
           icon={<AlertTriangle className="w-4 h-4 text-rose-500" />}
         />
         <StatCard
-          label="Paiements ce mois"
+          label={t('Paiements ce mois')}
           value={formatFCFA(paidThisMonth)}
-          subValue="Novembre 2026"
+          subValue={t('Novembre 2026')}
           icon={<CheckCircle2 className="w-4 h-4 text-emerald-700" />}
         />
         <StatCard
-          label="Total payé (Lifetime)"
+          label={t('Total payé (Lifetime)')}
           value={formatFCFA(totalLifetimePaid)}
-          subValue="Depuis votre adhésion"
+          subValue={t('Depuis votre adhésion')}
           icon={<TrendingUp className="w-4 h-4 text-emerald-800" />}
         />
       </div>
@@ -126,13 +128,13 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
       <div className="p-5 rounded-xl bg-gradient-to-r from-emerald-900 to-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <span className="text-[10px] font-semibold text-emerald-300 uppercase tracking-wider block mb-1">
-            Prochaine échéance
+            {t('Prochaine échéance')}
           </span>
           <h3 className="text-lg font-bold">
-            Cotisation Mensuelle · {formatFCFA(nextDueAmount)}
+            {t('Cotisation Mensuelle')} · {formatFCFA(nextDueAmount)}
           </h3>
           <p className="text-xs text-slate-300 mt-0.5">
-            Date limite : <span className="font-semibold text-white">{nextDueDate}</span> (dans 3 jours)
+            {t('Date limite')} : <span className="font-semibold text-white">{nextDueDate}</span> ({t('dans 3 jours')})
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -141,7 +143,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
             variant="secondary"
             onClick={() => onOpenMakePayment(dueContributions[0]?.id)}
           >
-            Régler via Wave ou Orange Money
+            {t('Régler via Wave ou Orange Money')}
           </Button>
         </div>
       </div>
@@ -152,9 +154,9 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
         <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200/80 p-5 shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-sm font-semibold text-slate-900">Mes Cotisations</h3>
+              <h3 className="text-sm font-semibold text-slate-900">{t('Mes Cotisations')}</h3>
               <p className="text-xs text-slate-500">
-                Statut de vos participations au sein du Dahira
+                {t('Statut de vos participations au sein du Dahira')}
               </p>
             </div>
           </div>
@@ -177,7 +179,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                     <div>
                       <h4 className="text-sm font-semibold text-slate-900">{c.title}</h4>
                       <p className="text-xs text-slate-500 capitalize">
-                        {c.frequency} · Échéance le {c.dayOfMonth || 5} du mois
+                        {t(c.frequency)} · {t('Échéance le')} {c.dayOfMonth || 5} {t('du mois')}
                       </p>
                       {/* Progress bar */}
                       <div className="mt-2 flex items-center gap-2">
@@ -189,7 +191,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                           />
                         </div>
                         <span className="text-[11px] font-medium text-slate-600">
-                          {hasPaid ? '100% à jour' : 'À régler'}
+                          {hasPaid ? t('100% à jour') : t('À régler')}
                         </span>
                       </div>
                     </div>

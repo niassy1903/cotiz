@@ -17,6 +17,7 @@ import {
   FolderMinus,
   Lock,
 } from 'lucide-react';
+import { usePreferences } from '../../context/PreferencesContext';
 
 interface ExpensesListProps {
   onOpenCreate: () => void;
@@ -24,6 +25,7 @@ interface ExpensesListProps {
 
 export const ExpensesList: React.FC<ExpensesListProps> = ({ onOpenCreate }) => {
   const { user } = useAuth();
+  const { t } = usePreferences();
   const { orgExpenses, orgMembers, cancelExpense } = useData();
 
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
@@ -62,9 +64,9 @@ export const ExpensesList: React.FC<ExpensesListProps> = ({ onOpenCreate }) => {
         <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-500 mx-auto flex items-center justify-center">
           <Lock className="w-6 h-6" />
         </div>
-        <h3 className="text-base font-bold text-slate-900">Accès restreint aux dépenses</h3>
+        <h3 className="text-base font-bold text-slate-900">{t('Accès restreint aux dépenses')}</h3>
         <p className="text-xs text-slate-600 leading-relaxed">
-          La consultation des dépenses détaillées est réservée aux administrateurs ou aux membres auxquels l'administrateur a délégué la visibilité des transactions financières.
+          {t("La consultation des dépenses détaillées est réservée aux administrateurs ou aux membres auxquels l'administrateur a délégué la visibilité des transactions financières.")}
         </p>
       </div>
     );
@@ -76,16 +78,16 @@ export const ExpensesList: React.FC<ExpensesListProps> = ({ onOpenCreate }) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
         <div>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            Registre des Dépenses & Sorties de Caisse
+            {t('Registre des Dépenses & Sorties de Caisse')}
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Total engagé : <span className="font-bold text-rose-700 font-tabular">{formatFCFA(totalCumulated)}</span> sur {activeExpenses.length} opérations
+            {t('Total engagé :')} <span className="font-bold text-rose-700 font-tabular">{formatFCFA(totalCumulated)}</span> {t('sur')} {activeExpenses.length} {t('opérations')}
           </p>
         </div>
 
         {isAdmin && (
           <Button onClick={onOpenCreate} leftIcon={<Plus className="w-4 h-4" />}>
-            Enregistrer une dépense
+            {t('Enregistrer une dépense')}
           </Button>
         )}
       </div>
@@ -93,11 +95,11 @@ export const ExpensesList: React.FC<ExpensesListProps> = ({ onOpenCreate }) => {
       {/* Category filter */}
       <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg text-xs w-fit">
         {[
-          { id: 'all', label: 'Toutes les catégories' },
-          { id: 'Nourriture', label: 'Nourriture & Collation' },
-          { id: 'Transport', label: 'Transport' },
-          { id: 'Santé', label: 'Santé & Urgences' },
-          { id: 'Autres', label: 'Autres charges' },
+          { id: 'all', label: t('Toutes les catégories') },
+          { id: 'Nourriture', label: t('Nourriture & Collation') },
+          { id: 'Transport', label: t('Transport') },
+          { id: 'Santé', label: t('Santé & Urgences') },
+          { id: 'Autres', label: t('Autres charges') },
         ].map(cat => (
           <button
             key={cat.id}
@@ -119,20 +121,20 @@ export const ExpensesList: React.FC<ExpensesListProps> = ({ onOpenCreate }) => {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">Date</th>
-                <th className="py-3 px-4">Description & Justificatif</th>
-                <th className="py-3 px-4">Catégorie</th>
-                <th className="py-3 px-4">Enregistré par</th>
-                <th className="py-3 px-4 text-right">Montant</th>
-                <th className="py-3 px-4 text-center">État</th>
-                {isAdmin && <th className="py-3 px-4 text-right">Actions</th>}
+                <th className="py-3 px-4">{t('Date')}</th>
+                <th className="py-3 px-4">{t('Description & Justificatif')}</th>
+                <th className="py-3 px-4">{t('Catégorie')}</th>
+                <th className="py-3 px-4">{t('Enregistré par')}</th>
+                <th className="py-3 px-4 text-right">{t('Montant')}</th>
+                <th className="py-3 px-4 text-center">{t('État')}</th>
+                {isAdmin && <th className="py-3 px-4 text-right">{t('Actions')}</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-400">
-                    Aucune dépense enregistrée dans cette sélection
+                    {t('Aucune dépense enregistrée dans cette sélection')}
                   </td>
                 </tr>
               ) : (
@@ -155,7 +157,7 @@ export const ExpensesList: React.FC<ExpensesListProps> = ({ onOpenCreate }) => {
                       <td className="py-3 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
                           {getCategoryIcon(expense.category)}
-                          <span className="font-medium text-slate-700">{expense.category}</span>
+                          <span className="font-medium text-slate-700">                          {t(expense.category)}</span>
                         </div>
                       </td>
 
@@ -177,7 +179,7 @@ export const ExpensesList: React.FC<ExpensesListProps> = ({ onOpenCreate }) => {
                               : 'bg-rose-50 text-rose-800 border border-rose-200 line-through'
                           }`}
                         >
-                          {expense.status === 'active' ? 'Validée' : 'Annulée'}
+                          {expense.status === 'active' ? t('Validée') : t('Annulée')}
                         </span>
                       </td>
 
@@ -189,10 +191,10 @@ export const ExpensesList: React.FC<ExpensesListProps> = ({ onOpenCreate }) => {
                               className="text-rose-600 hover:text-rose-800 text-[11px] font-medium inline-flex items-center gap-1 cursor-pointer"
                             >
                               <RotateCcw className="w-3.5 h-3.5" />
-                              <span>Annuler (&lt;1h)</span>
+                              <span>{t('Annuler (<1h)')}</span>
                             </button>
                           ) : (
-                            <span className="text-[11px] text-slate-400">Verrouillé</span>
+                            <span className="text-[11px] text-slate-400">{t('Verrouillé')}</span>
                           )}
                         </td>
                       )}
@@ -215,11 +217,11 @@ export const ExpensesList: React.FC<ExpensesListProps> = ({ onOpenCreate }) => {
             setExpenseToCancel(null);
           }
         }}
-        title="Annuler cette dépense ?"
-        description={`Le montant de ${formatFCFA(
+        title={t('Annuler cette dépense ?')}
+        description={`${t('Le montant de')} ${formatFCFA(
           expenseToCancel?.amount || 0
-        )} sera réintégré dans le solde de la caisse. Cette annulation sera tracée dans le journal d'audit.`}
-        confirmLabel="Confirmer l'annulation"
+        )} ${t('sera réintégré dans le solde de la caisse. Cette annulation sera tracée dans le journal d’audit.')}`}
+        confirmLabel={t("Confirmer l'annulation")}
         isDestructive
       />
     </div>

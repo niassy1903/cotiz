@@ -17,6 +17,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { formatFCFA, formatDate, getInitials } from '../../utils/formatters';
+import { usePreferences } from '../../context/PreferencesContext';
 
 interface AdminDashboardProps {
   onNavigateTab: (tab: any) => void;
@@ -43,6 +44,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     orgPayments,
     orgExpenses,
   } = useData();
+  const { t } = usePreferences();
 
   // Financial calculations
   const validatedPayments = orgPayments.filter(p => p.status === 'validated');
@@ -99,7 +101,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            {currentOrg.location} · {orgMembers.length} membres enregistrés · Devise FCFA
+            {currentOrg.location} · {orgMembers.length} {t('membres enregistrés')} · {t('Devise FCFA')}
           </p>
         </div>
 
@@ -111,7 +113,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             onClick={onOpenInviteModal}
             leftIcon={<Share2 className="w-3.5 h-3.5" />}
           >
-            Lien d'invitation
+            {t("Lien d'invitation")}
           </Button>
           <Button
             size="sm"
@@ -119,7 +121,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             onClick={onOpenAddMember}
             leftIcon={<UserPlus className="w-3.5 h-3.5" />}
           >
-            Ajouter membre
+            {t('Ajouter membre')}
           </Button>
           <Button
             size="sm"
@@ -127,14 +129,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             onClick={onOpenCreateExpense}
             leftIcon={<Plus className="w-3.5 h-3.5" />}
           >
-            + Dépense
+            + {t('Dépense')}
           </Button>
           <Button
             size="sm"
             onClick={onOpenCreateContribution}
             leftIcon={<Plus className="w-3.5 h-3.5" />}
           >
-            + Cotisation
+            + {t('Cotisation')}
           </Button>
         </div>
       </div>
@@ -142,29 +144,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* Key Metric Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          label="Total collecté"
+          label={t('Total collecté')}
           value={formatFCFA(totalCollected)}
-          subValue={`${validatedPayments.length} versements validés`}
+          subValue={`${validatedPayments.length} ${t('versements validés')}`}
           icon={<Wallet className="w-4 h-4 text-emerald-700" />}
           onClick={() => onNavigateTab('payments')}
         />
         <StatCard
-          label="Total dépenses"
+          label={t('Total dépenses')}
           value={formatFCFA(totalExpenses)}
-          subValue={`${activeExpenses.length} dépenses enregistrées`}
+          subValue={`${activeExpenses.length} ${t('dépenses enregistrées')}`}
           icon={<Receipt className="w-4 h-4 text-rose-600" />}
           onClick={() => onNavigateTab('expenses')}
         />
         <StatCard
-          label="Solde net en caisse"
+          label={t('Solde net en caisse')}
           value={formatFCFA(netBalance)}
-          subValue="Fonds disponibles (Wave/OM/Cash)"
+          subValue={t('Fonds disponibles (Wave/OM/Cash)')}
           icon={<Scale className="w-4 h-4 text-emerald-800" />}
         />
         <StatCard
-          label="Cotisations en retard"
+          label={t('Cotisations en retard')}
           value={overdueMembersCount}
-          subValue="Membres à relancer"
+          subValue={t('Membres à relancer')}
           icon={<Clock className="w-4 h-4 text-amber-600" />}
           onClick={() => onNavigateTab('contributions')}
         />
@@ -181,10 +183,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-amber-900">
-                    {pendingPayments.length} paiement(s) en attente de validation
+                    {pendingPayments.length} {t('paiement(s) en attente de validation')}
                   </h4>
                   <p className="text-[11px] text-amber-700 mt-0.5">
-                    Wave & Orange Money prêts à être vérifiés
+                    {t('Wave & Orange Money prêts à être vérifiés')}
                   </p>
                 </div>
               </div>
@@ -193,7 +195,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 variant="secondary"
                 onClick={() => onNavigateTab('payments')}
               >
-                Vérifier
+                {t('Vérifier')}
               </Button>
             </div>
           )}
@@ -206,10 +208,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-emerald-900">
-                    {pendingMembers.length} demande(s) d'adhésion en attente
+                    {pendingMembers.length} {t("demande(s) d'adhésion en attente")}
                   </h4>
                   <p className="text-[11px] text-emerald-700 mt-0.5">
-                    Nouveaux membres ayant utilisé le lien d'invitation
+                    {t("Nouveaux membres ayant utilisé le lien d'invitation")}
                   </p>
                 </div>
               </div>
@@ -217,7 +219,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 size="sm"
                 onClick={() => onNavigateTab('members')}
               >
-                Gérer
+                {t('Gérer')}
               </Button>
             </div>
           )}
@@ -239,14 +241,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-xs">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900">Cotisations en cours</h3>
-                <p className="text-xs text-slate-500">Cycles et échéances programmées</p>
+                <h3 className="text-sm font-semibold text-slate-900">{t('Cotisations en cours')}</h3>
+                <p className="text-xs text-slate-500">{t('Cycles et échéances programmées')}</p>
               </div>
               <button
                 onClick={() => onNavigateTab('contributions')}
                 className="text-xs text-emerald-700 hover:text-emerald-800 font-medium flex items-center gap-1 cursor-pointer"
               >
-                <span>Tout afficher</span>
+                <span>{t('Tout afficher')}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -269,7 +271,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <span className="text-xs font-bold font-tabular text-slate-900">
                       {formatFCFA(c.amount)}
                     </span>
-                    <span className="block text-[10px] text-emerald-700 font-medium">Actif</span>
+                    <span className="block text-[10px] text-emerald-700 font-medium">{t('Actif')}</span>
                   </div>
                 </div>
               ))}
@@ -281,8 +283,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="space-y-6">
           <div className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-xs">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-slate-900">Activité Récente</h3>
-              <span className="text-[11px] text-slate-400">Dernières 48h</span>
+              <h3 className="text-sm font-semibold text-slate-900">{t('Activité Récente')}</h3>
+              <span className="text-[11px] text-slate-400">{t('Dernières 48h')}</span>
             </div>
 
             <div className="space-y-3">
@@ -316,10 +318,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       }`}
                     >
                       {pay.status === 'validated'
-                        ? 'Validé'
+                        ? t('Validé')
                         : pay.status === 'pending'
-                        ? 'En attente'
-                        : 'Rejeté'}
+                        ? t('En attente')
+                        : t('Rejeté')}
                     </span>
                   </div>
                 </div>

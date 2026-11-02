@@ -3,12 +3,14 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 import { AuthView } from './components/auth/AuthView';
 import { MainLayout } from './components/layout/MainLayout';
+import { PreferencesProvider, usePreferences } from './context/PreferencesContext';
 
 function AppContent() {
   const { isAuthenticated, isLoading, authError } = useAuth();
+  const { t } = usePreferences();
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center text-sm text-slate-600">Connexion à Cotiz…</div>;
+    return <div className="min-h-screen flex items-center justify-center text-sm text-slate-600">{t('Connexion à Cotiz…')}</div>;
   }
 
   if (!isAuthenticated) {
@@ -29,8 +31,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <PreferencesProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </PreferencesProvider>
   );
 }

@@ -15,7 +15,10 @@ import {
   Check,
   Shield,
   Smartphone,
+  Moon,
+  Sun,
 } from 'lucide-react';
+import { appLanguages, usePreferences } from '../../context/PreferencesContext';
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -24,6 +27,7 @@ interface UserProfileModalProps {
 
 export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose }) => {
   const { user, updateCurrentUserProfile, logout } = useAuth();
+  const { language, setLanguage, theme, toggleTheme, t } = usePreferences();
 
   const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'security'>('profile');
 
@@ -42,9 +46,6 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
   const [notifDueReminder, setNotifDueReminder] = useState(true);
   const [notifExpenseRecorded, setNotifExpenseRecorded] = useState(true);
 
-  // Language
-  const [language, setLanguage] = useState<'FR' | 'EN'>('FR');
-
   if (!user) return null;
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -55,7 +56,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 2000);
     } catch (error) {
-      setSaveError(error instanceof Error ? error.message : 'La mise à jour du profil a échoué.');
+      setSaveError(error instanceof Error ? error.message : t('La mise à jour du profil a échoué.'));
     }
   };
 
@@ -63,8 +64,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Mon Profil Utilisateur"
-      subtitle="Gestion de votre compte personnel, sécurité et notifications"
+      title={t('Mon Profil Utilisateur')}
+      subtitle={t('Gestion de votre compte personnel, sécurité et notifications')}
       maxWidth="md"
     >
       <div className="space-y-4">
@@ -79,7 +80,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
             </h4>
             <p className="text-xs text-slate-500 truncate">{user.email}</p>
             <span className="text-[10px] font-semibold text-emerald-800 uppercase">
-              Rôle : {user.role}
+              {t('Rôle')} : {t(user.role)}
             </span>
           </div>
         </div>
@@ -92,7 +93,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
               activeTab === 'profile' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
             }`}
           >
-            Informations
+            {t('Informations')}
           </button>
           <button
             onClick={() => setActiveTab('notifications')}
@@ -100,7 +101,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
               activeTab === 'notifications' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
             }`}
           >
-            Notifications
+            {t('Notifications')}
           </button>
           <button
             onClick={() => setActiveTab('security')}
@@ -108,7 +109,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
               activeTab === 'security' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
             }`}
           >
-            Sécurité & Langue
+            {t('Sécurité & Langue')}
           </button>
         </div>
 
@@ -118,13 +119,13 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
             {saveError && <p role="alert" className="text-xs text-rose-700">{saveError}</p>}
             <div className="grid grid-cols-2 gap-2">
               <Input
-                label="Prénom"
+                label={t('Prénom')}
                 value={firstName}
                 onChange={e => setFirstName(e.target.value)}
                 required
               />
               <Input
-                label="Nom"
+                label={t('Nom')}
                 value={lastName}
                 onChange={e => setLastName(e.target.value)}
                 required
@@ -132,7 +133,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
             </div>
 
             <Input
-              label="Numéro de téléphone"
+              label={t('Numéro de téléphone')}
               type="tel"
               value={phone}
               onChange={e => setPhone(e.target.value)}
@@ -140,24 +141,24 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
             />
 
             <Select
-              label="Sexe"
+              label={t('Sexe')}
               value={gender}
               onChange={e => setGender(e.target.value as Gender)}
               options={[
-                { value: 'M', label: 'Homme' },
-                { value: 'F', label: 'Femme' },
+                { value: 'M', label: t('Homme') },
+                { value: 'F', label: t('Femme') },
               ]}
             />
 
             <div className="flex items-center justify-between pt-2">
               {savedSuccess ? (
                 <span className="text-xs font-semibold text-emerald-700 flex items-center gap-1">
-                  <Check className="w-4 h-4" /> Enregistré !
+                  <Check className="w-4 h-4" /> {t('Enregistré !')}
                 </span>
               ) : <div />}
 
               <Button type="submit" size="sm">
-                Sauvegarder mon profil
+                {t('Sauvegarder mon profil')}
               </Button>
             </div>
           </form>
@@ -167,42 +168,42 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
         {activeTab === 'notifications' && (
           <div className="space-y-3 text-xs">
             <p className="text-slate-500 text-[11px]">
-              Activez ou désactivez les alertes reçues sur votre application et par SMS :
+              {t('Activez ou désactivez les alertes reçues sur votre application et par SMS :')}
             </p>
 
             {[
               {
                 id: 'newContrib',
-                label: 'Nouvelle cotisation créée',
-                desc: 'Alerte lors de l’ouverture d’un cycle',
+                label: t('Nouvelle cotisation créée'),
+                desc: t('Alerte lors de l’ouverture d’un cycle'),
                 val: notifNewContrib,
                 set: setNotifNewContrib,
               },
               {
                 id: 'paymentRec',
-                label: 'Paiement reçu & validé',
-                desc: 'Confirmation de réception Wave / OM',
+                label: t('Paiement reçu & validé'),
+                desc: t('Confirmation de réception Wave / OM'),
                 val: notifPaymentReceived,
                 set: setNotifPaymentReceived,
               },
               {
                 id: 'lateAlert',
-                label: 'Cotisation en retard',
-                desc: 'Notification de rappel automatique',
+                label: t('Cotisation en retard'),
+                desc: t('Notification de rappel automatique'),
                 val: notifLateAlert,
                 set: setNotifLateAlert,
               },
               {
                 id: 'dueReminder',
-                label: 'Rappel d’échéance imminente',
-                desc: 'Envoyé 48h avant la date limite',
+                label: t('Rappel d’échéance imminente'),
+                desc: t('Envoyé 48h avant la date limite'),
                 val: notifDueReminder,
                 set: setNotifDueReminder,
               },
               {
                 id: 'expRecorded',
-                label: 'Dépense enregistrée',
-                desc: 'Pour les membres autorisés',
+                label: t('Dépense enregistrée'),
+                desc: t('Pour les membres autorisés'),
                 val: notifExpenseRecorded,
                 set: setNotifExpenseRecorded,
               },
@@ -233,24 +234,28 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Globe className="w-4 h-4 text-slate-600" />
-                <span className="font-semibold text-slate-800">Langue de l'application</span>
+                <span className="font-semibold text-slate-800">{t('Langue de l’application')}</span>
               </div>
-              <div className="flex gap-1">
-                {(['FR', 'EN'] as const).map(lang => (
-                  <button
-                    key={lang}
-                    onClick={() => setLanguage(lang)}
-                    className={`px-2.5 py-1 rounded text-xs font-bold cursor-pointer ${
-                      language === lang
-                        ? 'bg-emerald-800 text-white'
-                        : 'bg-white text-slate-600 border border-slate-200'
-                    }`}
-                  >
-                    {lang}
-                  </button>
+              <select
+                value={language}
+                onChange={event => setLanguage(event.target.value as typeof language)}
+                className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-semibold text-slate-700"
+                aria-label={t('Langue de l’application')}
+              >
+                {appLanguages.map(option => (
+                  <option key={option.code} value={option.code}>{option.nativeName}</option>
                 ))}
-              </div>
+              </select>
             </div>
+
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 text-left text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-100"
+            >
+              <span>{theme === 'dark' ? t('Thème sombre') : t('Thème clair')}</span>
+              {theme === 'dark' ? <Moon className="h-4 w-4 text-orange-500" /> : <Sun className="h-4 w-4 text-orange-500" />}
+            </button>
 
             {/* Logout button */}
             <div className="pt-2">
@@ -264,12 +269,12 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
                 }}
                 leftIcon={<LogOut className="w-4 h-4" />}
               >
-                Se déconnecter
+                {t('Se déconnecter')}
               </Button>
             </div>
 
             <div className="text-center pt-2 text-[10px] text-slate-400">
-              Cotiz Web v1.0.0 · Dernière mise à jour Novembre 2026
+              {t('Cotiz Web v1.0.0 · Dernière mise à jour Novembre 2026')}
             </div>
           </div>
         )}

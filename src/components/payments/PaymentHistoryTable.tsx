@@ -8,6 +8,7 @@ import { ConfirmModal } from '../common/ConfirmModal';
 import { Payment, PaymentMethod, PaymentStatus } from '../../types/payment';
 import { formatFCFA, formatDate, getInitials } from '../../utils/formatters';
 import { canUndo } from '../../utils/helpers';
+import { usePreferences } from '../../context/PreferencesContext';
 import {
   Download,
   Filter,
@@ -29,6 +30,7 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
 }) => {
   const { user } = useAuth();
   const { orgPayments, cancelPayment } = useData();
+  const { t } = usePreferences();
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
   // Filters
@@ -91,10 +93,10 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
         <div>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            Registre des Paiements & Transactions
+            {t('Registre des Paiements & Transactions')}
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Traçabilité complète des cotisations perçues par Wave, Orange Money et Espèces
+            {t('Traçabilité complète des cotisations perçues par Wave, Orange Money et Espèces')}
           </p>
         </div>
 
@@ -105,7 +107,7 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
             onClick={handleExportCSV}
             leftIcon={<Download className="w-3.5 h-3.5" />}
           >
-            Exporter (CSV)
+            {t('Exporter (CSV)')}
           </Button>
           <Button
             size="sm"
@@ -113,14 +115,14 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
             onClick={onOpenMakePayment}
             leftIcon={<CreditCard className="w-3.5 h-3.5" />}
           >
-            Effectuer un versement
+            {t('Effectuer un versement')}
           </Button>
         </div>
       </div>
 
       {exportNotice && (
         <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 flex items-center justify-between">
-          <span>Export CSV des transactions téléchargé avec succès.</span>
+          <span>{t('Export CSV des transactions téléchargé avec succès.')}</span>
         </div>
       )}
 
@@ -131,7 +133,7 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
-            placeholder="Rechercher par membre ou transaction..."
+            placeholder={t('Rechercher par membre ou transaction...')}
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
@@ -151,12 +153,12 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
                 }`}
               >
                 {st === 'all'
-                  ? 'Tous'
+                  ? t('Tous')
                   : st === 'validated'
-                  ? 'Validés'
+                  ? t('Validés')
                   : st === 'pending'
-                  ? 'En attente'
-                  : 'Rejetés'}
+                  ? t('En attente')
+                  : t('Rejetés')}
               </button>
             ))}
           </div>
@@ -171,7 +173,7 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
                   methodFilter === mt ? 'bg-white text-slate-900 shadow-2xs font-semibold' : 'text-slate-600'
                 }`}
               >
-                {mt === 'all' ? 'Toutes Méthodes' : mt === 'orange_money' ? 'OM' : mt}
+                {mt === 'all' ? t('Toutes Méthodes') : mt === 'orange_money' ? 'OM' : mt}
               </button>
             ))}
           </div>
@@ -184,20 +186,20 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">Date & Réf</th>
-                <th className="py-3 px-4">Membre</th>
-                <th className="py-3 px-4">Cotisation</th>
-                <th className="py-3 px-4">Méthode</th>
-                <th className="py-3 px-4 text-right">Montant</th>
-                <th className="py-3 px-4 text-center">Statut</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+                <th className="py-3 px-4">{t('Date & Réf')}</th>
+                <th className="py-3 px-4">{t('Membre')}</th>
+                <th className="py-3 px-4">{t('Cotisation')}</th>
+                <th className="py-3 px-4">{t('Méthode')}</th>
+                <th className="py-3 px-4 text-right">{t('Montant')}</th>
+                <th className="py-3 px-4 text-center">{t('Statut')}</th>
+                <th className="py-3 px-4 text-right">{t('Actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-400">
-                    Aucune transaction ne correspond aux critères
+                    {t('Aucune transaction ne correspond aux critères')}
                   </td>
                 </tr>
               ) : (
@@ -255,7 +257,7 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
                               : 'text-emerald-700'
                           }`}
                         >
-                          {payment.method === 'orange_money' ? 'Orange Money' : payment.method}
+                          {payment.method === 'orange_money' ? 'Orange Money' : t(payment.method)}
                         </span>
                       </td>
 
@@ -278,12 +280,12 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
                           }`}
                         >
                           {payment.status === 'validated'
-                            ? 'Validé'
+                            ? t('Validé')
                             : payment.status === 'pending'
-                            ? 'En attente'
+                            ? t('En attente')
                             : payment.status === 'rejected'
-                            ? 'Rejeté'
-                            : 'Annulé'}
+                            ? t('Rejeté')
+                            : t('Annulé')}
                         </span>
                       </td>
 
@@ -295,7 +297,7 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
                             variant="primary"
                             onClick={() => setSelectedForValidation(payment)}
                           >
-                            Valider
+                            {t('Valider')}
                           </Button>
                         )}
 
@@ -304,10 +306,10 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
                           <button
                             onClick={() => setPaymentToCancel(payment)}
                             className="p-1 hover:bg-rose-50 rounded text-rose-600 cursor-pointer inline-flex items-center gap-1 text-[11px] font-medium"
-                            title="Annuler (délai 1h)"
+                            title={t('Annuler (délai 1h)')}
                           >
                             <RotateCcw className="w-3.5 h-3.5" />
-                            <span>Annuler (&lt;1h)</span>
+                            <span>{t('Annuler (<1h)')}</span>
                           </button>
                         )}
                       </td>
@@ -337,11 +339,11 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
             setPaymentToCancel(null);
           }
         }}
-        title="Annuler le paiement"
-        description={`Êtes-vous sûr de vouloir annuler le versement de ${formatFCFA(
+        title={t('Annuler le paiement')}
+        description={`${t('Êtes-vous sûr de vouloir annuler le versement de')} ${formatFCFA(
           paymentToCancel?.amount || 0
-        )} pour ${paymentToCancel?.memberName} ? Le statut passera à 'Annulé' et sera tracé dans l'audit.`}
-        confirmLabel="Confirmer l'annulation"
+        )} ${t('pour')} ${paymentToCancel?.memberName} ? ${t("Le statut passera à 'Annulé' et sera tracé dans l'audit.")}`}
+        confirmLabel={t("Confirmer l'annulation")}
         isDestructive
       />
     </div>

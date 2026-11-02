@@ -10,6 +10,207 @@
   }
 }
 
+html.dark body,
+html.dark #root {
+  color: #e5eee8;
+  background-color: #0c1712;
+}
+
+html.dark [class~="bg-white"] {
+  background-color: #14231c !important;
+}
+
+html.dark [class~="bg-slate-50"],
+html.dark [class~="bg-slate-50/50"],
+html.dark [class~="bg-slate-50/60"],
+html.dark [class~="bg-slate-50/80"],
+html.dark [class~="bg-slate-100"],
+html.dark [class~="bg-slate-100/80"],
+html.dark [class~="bg-slate-200"] {
+  background-color: #17251e !important;
+}
+
+html.dark [class*="bg-emerald-50"],
+html.dark [class*="bg-green-50"] {
+  background-color: #18372a !important;
+}
+
+html.dark [class*="bg-amber-50"],
+html.dark [class*="bg-yellow-50"] {
+  background-color: #3b2e18 !important;
+}
+
+html.dark [class*="bg-rose-50"],
+html.dark [class*="bg-red-50"] {
+  background-color: #3d2223 !important;
+}
+
+html.dark [class*="text-slate-900"],
+html.dark [class*="text-slate-800"],
+html.dark [class*="text-gray-900"],
+html.dark [class*="text-gray-800"] {
+  color: #e5eee8 !important;
+}
+
+html.dark [class*="text-slate-700"],
+html.dark [class*="text-slate-600"],
+html.dark [class*="text-gray-700"],
+html.dark [class*="text-gray-600"] {
+  color: #c3d1c8 !important;
+}
+
+html.dark [class*="text-slate-500"],
+html.dark [class*="text-slate-400"],
+html.dark [class*="text-gray-500"],
+html.dark [class*="text-gray-400"] {
+  color: #9aada1 !important;
+}
+
+html.dark [class*="text-emerald-900"],
+html.dark [class*="text-emerald-800"],
+html.dark [class*="text-emerald-700"],
+html.dark [class*="text-green-900"],
+html.dark [class*="text-green-800"],
+html.dark [class*="text-green-700"] {
+  color: #8fe0b5 !important;
+}
+
+html.dark [class*="text-rose-900"],
+html.dark [class*="text-rose-800"],
+html.dark [class*="text-rose-700"],
+html.dark [class*="text-red-900"],
+html.dark [class*="text-red-800"],
+html.dark [class*="text-red-700"] {
+  color: #fda4af !important;
+}
+
+html.dark [class*="text-amber-900"],
+html.dark [class*="text-amber-800"],
+html.dark [class*="text-amber-700"],
+html.dark [class*="text-yellow-900"],
+html.dark [class*="text-yellow-800"],
+html.dark [class*="text-yellow-700"] {
+  color: #fcd34d !important;
+}
+
+html.dark [class*="text-sky-900"],
+html.dark [class*="text-sky-800"],
+html.dark [class*="text-sky-700"],
+html.dark [class*="text-orange-900"],
+html.dark [class*="text-orange-800"],
+html.dark [class*="text-orange-700"] {
+  color: #7dd3fc !important;
+}
+
+html.dark [class*="border-slate-"],
+html.dark [class*="border-gray-"] {
+  border-color: #2b3c32 !important;
+}
+
+html.dark [class*="border-rose-"],
+html.dark [class*="border-red-"] {
+  border-color: #71343d !important;
+}
+
+html.dark [class*="border-amber-"],
+html.dark [class*="border-yellow-"] {
+  border-color: #6a522b !important;
+}
+
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark textarea,
+html.dark select {
+  color: #e5eee8;
+  background-color: #111e17;
+  border-color: #35493d;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #829589;
+}
+
+html.dark table thead {
+  background-color: #17251e;
+}
+
+html.dark .auth-shell {
+  background:
+    radial-gradient(ellipse at 82% 15%, rgb(18 92 62 / 24%), transparent 32%),
+    #0c1712;
+}
+
+html.dark .auth-form-side {
+  color: #e5eee8;
+}
+
+html.dark .auth-card {
+  border-color: #294137;
+  background: rgb(20 35 28 / 96%);
+  box-shadow: 0 28px 80px -34px rgb(0 0 0 / 55%), 0 2px 8px rgb(0 0 0 / 20%);
+}
+
+html.dark .auth-logo-frame {
+  background-color: #fff !important;
+}
+
+html.dark .auth-title {
+  color: #e5eee8;
+}
+
+html.dark .auth-subtitle {
+  color: #a9bbb0;
+}
+
+html.dark .auth-mode-tabs {
+  border-color: #2b3c32;
+  background: #111e17;
+}
+
+html.dark .auth-card label {
+  color: #c3d1c8;
+}
+
+html.dark .auth-card input:not([type="checkbox"]) {
+  border-color: #35493d;
+  background-color: #111e17;
+  color: #e5eee8;
+}
+
+html.dark .auth-card input.auth-otp-input {
+  border-color: #35654d;
+  background: #12251a;
+  color: #a4e7c1;
+}
+
+.cotiz-sidebar {
+  background:
+    radial-gradient(ellipse at 0% 0%, rgb(244 119 33 / 17%), transparent 36%),
+    linear-gradient(160deg, #073d30 0%, #075a43 55%, #064432 100%);
+  border-color: rgb(255 255 255 / 10%);
+  box-shadow: 8px 0 32px rgb(6 50 37 / 10%);
+}
+
+.cotiz-sidebar-preferences {
+  backdrop-filter: blur(12px);
+}
+
+.cotiz-preference-select option {
+  color: #173b2f;
+  background: #fff;
+}
+
+html.dark .cotiz-sidebar {
+  background:
+    radial-gradient(ellipse at 0% 0%, rgb(244 119 33 / 20%), transparent 36%),
+    linear-gradient(160deg, #071f19 0%, #083a2b 55%, #06271d 100%);
+}
+
+html.dark .cotiz-preference-select option {
+  color: #e5eee8;
+  background: #14231c;
+}
+
 .auth-shell {
   background:
     radial-gradient(ellipse at 82% 15%, rgb(230 240 232 / 70%), transparent 32%),

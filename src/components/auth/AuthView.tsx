@@ -23,7 +23,9 @@ import {
   Timer,
   RefreshCw,
   ArrowLeft,
+  Globe,
 } from 'lucide-react';
+import { appLanguages, usePreferences } from '../../context/PreferencesContext';
 
 const splashSlides = [
   {
@@ -57,6 +59,7 @@ const splashSlides = [
 
 export const AuthView: React.FC = () => {
   const { login, verifyLoginOtp, resendLoginOtp, signup } = useAuth();
+  const { language, setLanguage, t } = usePreferences();
   const invitationToken = new URLSearchParams(window.location.search).get('invite') || undefined;
   const referralCode = new URLSearchParams(window.location.search).get('ref') || undefined;
 
@@ -138,7 +141,7 @@ export const AuthView: React.FC = () => {
     e.preventDefault();
     setErrorMsg('');
     if (!email) {
-      setErrorMsg('Veuillez entrer une adresse email valide.');
+      setErrorMsg(t('Veuillez entrer une adresse email valide.'));
       return;
     }
     setIsLoading(true);
@@ -163,8 +166,8 @@ export const AuthView: React.FC = () => {
 
     if (!otpChallenge || otpSecondsLeft === 0 || !/^\d{6}$/.test(otpCode)) {
       setErrorMsg(otpSecondsLeft === 0
-        ? 'Ce code a expiré. Recommencez votre connexion.'
-        : 'Saisissez les 6 chiffres reçus par e-mail.');
+        ? t('Ce code a expiré. Recommencez votre connexion.')
+        : t('Saisissez les 6 chiffres reçus par e-mail.'));
       return;
     }
 
@@ -211,7 +214,7 @@ export const AuthView: React.FC = () => {
     e.preventDefault();
     setErrorMsg('');
     if (!firstName || !lastName || !email || !phone || (!invitationToken && !organizationName) || password.length < 8) {
-      setErrorMsg('Veuillez remplir tous les champs obligatoires.');
+      setErrorMsg(t('Veuillez remplir tous les champs obligatoires.'));
       return;
     }
     if (isInviteLoading) return;
@@ -238,7 +241,7 @@ export const AuthView: React.FC = () => {
   const handleForgot = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
-      setErrorMsg('Veuillez renseigner votre email.');
+      setErrorMsg(t('Veuillez renseigner votre email.'));
       return;
     }
     setIsLoading(true);
@@ -256,7 +259,7 @@ export const AuthView: React.FC = () => {
     e.preventDefault();
     setErrorMsg('');
     if (!resetToken || password.length < 8 || password !== passwordConfirmation) {
-      setErrorMsg('Vérifiez le lien et saisissez deux fois le même mot de passe (8 caractères minimum).');
+      setErrorMsg(t('Vérifiez le lien et saisissez deux fois le même mot de passe (8 caractères minimum).'));
       return;
     }
 
@@ -310,13 +313,13 @@ export const AuthView: React.FC = () => {
             </div>
             <div>
               <span className="text-xl font-bold tracking-tight text-white block">Cotiz</span>
-              <span className="text-[11px] text-emerald-100 font-medium">Finance solidaire</span>
+              <span className="text-[11px] text-emerald-100 font-medium">{t('Finance solidaire')}</span>
             </div>
           </div>
 
           <span className="auth-trust-pill hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-emerald-100 text-xs font-semibold border border-white/15">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Devise officielle : FCFA</span>
+            <span>{t('Devise officielle : FCFA')}</span>
           </span>
         </div>
 
@@ -325,31 +328,31 @@ export const AuthView: React.FC = () => {
           <div className="max-w-xl space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-500/20 backdrop-blur-md border border-emerald-400/30 text-emerald-300 text-xs font-semibold">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>{splashSlides[activeSlide].tag}</span>
+              <span>              {t(splashSlides[activeSlide].tag)}</span>
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight text-balance">
-              {splashSlides[activeSlide].title}
+              {t(splashSlides[activeSlide].title)}
             </h2>
 
             <p className="text-sm text-slate-200/90 leading-relaxed max-w-lg">
-              {splashSlides[activeSlide].description}
+              {t(splashSlides[activeSlide].description)}
             </p>
 
             {/* Micro proof metric strip */}
             <div className="pt-2 flex items-center gap-6">
               <div>
                 <span className="text-xl font-bold text-emerald-400 font-tabular">
-                  {splashSlides[activeSlide].statNumber}
+                  {t(splashSlides[activeSlide].statNumber)}
                 </span>
                 <span className="block text-[11px] text-slate-300">
-                  {splashSlides[activeSlide].statLabel}
+                  {t(splashSlides[activeSlide].statLabel)}
                 </span>
               </div>
               <div className="h-8 w-px bg-white/20" />
               <div>
                 <span className="text-xl font-bold text-amber-300 font-tabular">FCFA</span>
-                <span className="block text-[11px] text-slate-200">Pour les cotisations locales</span>
+                <span className="block text-[11px] text-slate-200">{t('Pour les cotisations locales')}</span>
               </div>
             </div>
           </div>
@@ -376,14 +379,14 @@ export const AuthView: React.FC = () => {
                   setActiveSlide(prev => (prev - 1 + splashSlides.length) % splashSlides.length)
                 }
                 className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-                aria-label="Précédent"
+                aria-label={t('Précédent')}
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setActiveSlide(prev => (prev + 1) % splashSlides.length)}
                 className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-                aria-label="Suivant"
+                aria-label={t('Suivant')}
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -395,19 +398,35 @@ export const AuthView: React.FC = () => {
       {/* RIGHT COLUMN: Auth Form (Desktop 50%, full on mobile) */}
       <div className="auth-form-side w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 lg:p-12 min-h-screen">
         <div className="auth-card w-full max-w-md rounded-2xl border p-6 sm:p-8 space-y-6">
+          <div className="flex justify-end">
+            <label className="flex items-center gap-2 text-xs text-slate-500">
+              <Globe className="h-4 w-4" />
+              <span className="sr-only">{t('Langue de l’application')}</span>
+              <select
+                value={language}
+                onChange={event => setLanguage(event.target.value as typeof language)}
+                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700"
+                aria-label={t('Langue de l’application')}
+              >
+                {appLanguages.map(option => (
+                  <option key={option.code} value={option.code}>{option.nativeName}</option>
+                ))}
+              </select>
+            </label>
+          </div>
           {/* Header Title & Switch */}
           <div>
             <div className="flex items-center justify-between mb-1">
               <h1 className="auth-title text-2xl font-bold tracking-tight">
                 {mode === 'signin'
-                  ? 'Ravi de vous revoir'
+                  ? t('Ravi de vous revoir')
                   : mode === 'otp'
-                  ? 'Vérifiez votre identité'
+                  ? t('Vérifiez votre identité')
                   : mode === 'signup'
-                  ? 'Rejoindre Cotiz'
+                  ? t('Rejoindre Cotiz')
                   : mode === 'reset'
-                  ? 'Nouveau mot de passe'
-                  : 'Récupération de compte'}
+                  ? t('Nouveau mot de passe')
+                  : t('Récupération de compte')}
               </h1>
               <div className="auth-logo-frame lg:hidden w-9 h-9 rounded-xl bg-white p-1.5 shadow-sm">
                 <img
@@ -419,14 +438,14 @@ export const AuthView: React.FC = () => {
             </div>
             <p className="auth-subtitle text-xs text-slate-500">
               {mode === 'signin'
-                ? 'Connectez-vous pour retrouver votre communauté et suivre vos cotisations.'
+                ? t('Connectez-vous pour retrouver votre communauté et suivre vos cotisations.')
                 : mode === 'otp'
-                ? `Saisissez le code à 6 chiffres envoyé à ${email}.`
+                ? `${t('Saisissez le code à 6 chiffres envoyé à')} ${email}.`
                 : mode === 'signup'
-                ? 'Créez votre profil membre en moins d’une minute'
+                ? t('Créez votre profil membre en moins d’une minute')
                 : mode === 'reset'
-                ? 'Choisissez un nouveau mot de passe sécurisé'
-                : 'Saisissez votre adresse email pour réinitialiser votre accès'}
+                ? t('Choisissez un nouveau mot de passe sécurisé')
+                : t('Saisissez votre adresse email pour réinitialiser votre accès')}
             </p>
           </div>
 
@@ -447,7 +466,7 @@ export const AuthView: React.FC = () => {
                 }`}
                 aria-pressed={mode === 'signin'}
               >
-                Se connecter
+                {t('Se connecter')}
               </button>
               <button
                 type="button"
@@ -463,7 +482,7 @@ export const AuthView: React.FC = () => {
                 }`}
                 aria-pressed={mode === 'signup'}
               >
-                Créer un compte
+                {t('Créer un compte')}
               </button>
             </div>
           )}
@@ -484,7 +503,7 @@ export const AuthView: React.FC = () => {
           {mode === 'signin' && (
             <form onSubmit={handleSignIn} className="space-y-4">
               <Input
-                label="Adresse e-mail"
+                label={t('Adresse e-mail')}
                 type="email"
                 placeholder="votre.email@cotiz.sn"
                 autoComplete="email"
@@ -498,7 +517,7 @@ export const AuthView: React.FC = () => {
 
               <div>
                 <Input
-                  label="Mot de passe"
+                  label={t('Mot de passe')}
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Votre mot de passe"
                   autoComplete="current-password"
@@ -510,7 +529,7 @@ export const AuthView: React.FC = () => {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="text-slate-400 hover:text-slate-600 cursor-pointer"
-                      aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                      aria-label={showPassword ? t('Masquer le mot de passe') : t('Afficher le mot de passe')}
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -525,7 +544,7 @@ export const AuthView: React.FC = () => {
                       onChange={e => setRememberMe(e.target.checked)}
                       className="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600"
                     />
-                    <span>Se souvenir de moi</span>
+                    <span>{t('Se souvenir de moi')}</span>
                   </label>
                   <button
                     type="button"
@@ -536,7 +555,7 @@ export const AuthView: React.FC = () => {
                     }}
                     className="auth-link text-emerald-700 hover:text-emerald-800 font-semibold cursor-pointer"
                   >
-                    Mot de passe oublié ?
+                    {t('Mot de passe oublié ?')}
                   </button>
                 </div>
               </div>
@@ -548,7 +567,7 @@ export const AuthView: React.FC = () => {
                 isLoading={isLoading}
                 rightIcon={<ArrowRight className="w-4 h-4" />}
               >
-                Recevoir mon code OTP
+                {t('Recevoir mon code OTP')}
               </Button>
             </form>
           )}
@@ -560,12 +579,12 @@ export const AuthView: React.FC = () => {
                   <KeyRound className="h-6 w-6" />
                 </div>
                 <p className="mt-4 text-sm leading-6 text-slate-600">
-                  Ouvrez votre boîte e-mail et entrez le code de sécurité à usage unique.
+                  {t('Ouvrez votre boîte e-mail et entrez le code de sécurité à usage unique.')}
                 </p>
               </div>
 
               <Input
-                label="Code de vérification"
+                label={t('Code de vérification')}
                 type="text"
                 inputMode="numeric"
                 autoComplete="one-time-code"
@@ -582,8 +601,8 @@ export const AuthView: React.FC = () => {
               <div id="otp-expiry" className="auth-otp-timer">
                 <Timer className="h-4 w-4" />
                 {otpSecondsLeft > 0
-                  ? `Ce code expire dans ${Math.floor(otpSecondsLeft / 60)}:${String(otpSecondsLeft % 60).padStart(2, '0')}`
-                  : 'Ce code a expiré. Recommencez votre connexion.'}
+                  ? `${t('Ce code expire dans')} ${Math.floor(otpSecondsLeft / 60)}:${String(otpSecondsLeft % 60).padStart(2, '0')}`
+                  : t('Ce code a expiré. Recommencez votre connexion.')}
               </div>
 
               <Button
@@ -594,7 +613,7 @@ export const AuthView: React.FC = () => {
                 disabled={otpSecondsLeft === 0 || otpCode.length !== 6}
                 rightIcon={<ArrowRight className="h-4 w-4" />}
               >
-                Vérifier et accéder à Cotiz
+                {t('Vérifier et accéder à Cotiz')}
               </Button>
 
               <div className="flex flex-col items-center gap-3 pt-1">
@@ -606,8 +625,8 @@ export const AuthView: React.FC = () => {
                 >
                   <RefreshCw className="h-4 w-4" />
                   {resendSecondsLeft > 0
-                    ? `Renvoyer le code dans ${resendSecondsLeft}s`
-                    : 'Renvoyer un nouveau code'}
+                    ? `${t('Renvoyer le code dans')} ${resendSecondsLeft}s`
+                    : t('Renvoyer un nouveau code')}
                 </button>
                 <button
                   type="button"
@@ -615,7 +634,7 @@ export const AuthView: React.FC = () => {
                   className="inline-flex items-center gap-2 text-xs font-medium text-slate-500 transition-colors hover:text-slate-800 cursor-pointer"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
-                  Retour à la connexion
+                  {t('Retour à la connexion')}
                 </button>
               </div>
             </form>
@@ -626,14 +645,14 @@ export const AuthView: React.FC = () => {
             <form onSubmit={handleSignUp} className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
                 <Input
-                  label="Prénom"
+                  label={t('Prénom')}
                   placeholder="Ex: Ibrahima"
                   value={firstName}
                   onChange={e => setFirstName(e.target.value)}
                   required
                 />
                 <Input
-                  label="Nom"
+                  label={t('Nom')}
                   placeholder="Ex: Diallo"
                   value={lastName}
                   onChange={e => setLastName(e.target.value)}
@@ -642,7 +661,7 @@ export const AuthView: React.FC = () => {
               </div>
 
               <Input
-                label="Adresse Email"
+                label={t('Adresse e-mail')}
                 type="email"
                 placeholder="ibrahima.diallo@cotiz.sn"
                 value={email}
@@ -652,29 +671,29 @@ export const AuthView: React.FC = () => {
               />
 
               <Input
-                label="Numéro de Téléphone"
+                label={t('Numéro de téléphone')}
                 type="tel"
                 placeholder="+221 77 000 00 00"
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
                 leftIcon={<Phone className="w-4 h-4" />}
-                helperText="Requis pour recevoir les notifications de versement"
+                helperText={t('Requis pour recevoir les notifications de versement')}
                 required
               />
 
               <Input
-                label={invitationToken ? "Organisation d'invitation" : "Nom de votre organisation"}
-                placeholder="Ex. Association, dahira ou tontine"
+                label={invitationToken ? t("Organisation d'invitation") : t('Nom de votre organisation')}
+                placeholder={t('Ex. Association, dahira ou tontine')}
                 value={organizationName}
                 onChange={e => setOrganizationName(e.target.value)}
                 disabled={Boolean(invitationToken)}
-                helperText={invitationToken ? (isInviteLoading ? 'Vérification du lien…' : `Vous rejoignez ${invitationName}.`) : undefined}
+                helperText={invitationToken ? (isInviteLoading ? t('Vérification du lien…') : `${t('Vous rejoignez')} ${invitationName}.`) : undefined}
                 required
               />
 
               {!invitationToken && (
                 <Input
-                  label="Code de parrainage (facultatif)"
+                  label={t('Code de parrainage (facultatif)')}
                   value={enteredReferralCode}
                   onChange={e => setEnteredReferralCode(e.target.value.toUpperCase())}
                 />
@@ -682,16 +701,16 @@ export const AuthView: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-2">
                 <Select
-                  label="Sexe"
+                  label={t('Sexe')}
                   value={gender}
                   onChange={e => setGender(e.target.value as Gender)}
                   options={[
-                    { value: 'M', label: 'Homme' },
-                    { value: 'F', label: 'Femme' },
+                    { value: 'M', label: t('Homme') },
+                    { value: 'F', label: t('Femme') },
                   ]}
                 />
                 <Input
-                  label="Mot de passe"
+                  label={t('Mot de passe')}
                   type="password"
                   minLength={8}
                   placeholder="••••••••"
@@ -702,11 +721,11 @@ export const AuthView: React.FC = () => {
               </div>
 
               <p className="text-[11px] text-slate-500 pt-1 leading-snug">
-                En créant un compte, vous acceptez le règlement financier de votre organisation et la charte de confidentialité Cotiz.
+                {t('En créant un compte, vous acceptez le règlement financier de votre organisation et la charte de confidentialité Cotiz.')}
               </p>
 
               <Button type="submit" className="w-full mt-2" size="md" isLoading={isLoading || isInviteLoading}>
-                Créer mon compte
+                {t('Créer mon compte')}
               </Button>
             </form>
           )}
@@ -715,7 +734,7 @@ export const AuthView: React.FC = () => {
           {mode === 'forgot' && (
             <form onSubmit={handleForgot} className="space-y-4">
               <Input
-                label="Email enregistré"
+                label={t('Email enregistré')}
                 type="email"
                 placeholder="votre.email@cotiz.sn"
                 value={email}
@@ -735,10 +754,10 @@ export const AuthView: React.FC = () => {
                     setSuccessMsg('');
                   }}
                 >
-                  Retour
+                  {t('Retour')}
                 </Button>
                 <Button type="submit" className="flex-1">
-                  Envoyer le lien
+                  {t('Envoyer le lien')}
                 </Button>
               </div>
             </form>
@@ -746,9 +765,9 @@ export const AuthView: React.FC = () => {
 
           {mode === 'reset' && (
             <form onSubmit={handleResetPassword} className="space-y-4">
-              <Input label="Adresse Email" type="email" value={email} readOnly />
+              <Input label={t('Adresse e-mail')} type="email" value={email} readOnly />
               <Input
-                label="Nouveau mot de passe"
+                label={t('Nouveau mot de passe')}
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
@@ -756,7 +775,7 @@ export const AuthView: React.FC = () => {
                 required
               />
               <Input
-                label="Confirmer le mot de passe"
+                label={t('Confirmer le mot de passe')}
                 type="password"
                 value={passwordConfirmation}
                 onChange={e => setPasswordConfirmation(e.target.value)}
@@ -764,7 +783,7 @@ export const AuthView: React.FC = () => {
                 required
               />
               <Button type="submit" className="w-full" isLoading={isLoading}>
-                Réinitialiser le mot de passe
+                {t('Réinitialiser le mot de passe')}
               </Button>
             </form>
           )}
@@ -773,7 +792,7 @@ export const AuthView: React.FC = () => {
           <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
             <span className="flex items-center gap-1 text-slate-600">
               <Lock className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Chiffrement sécurisé</span>
+              <span>{t('Chiffrement sécurisé')}</span>
             </span>
             <span>cotiz.finance · Sénégal</span>
           </div>

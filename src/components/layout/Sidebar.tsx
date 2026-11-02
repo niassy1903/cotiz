@@ -12,7 +12,10 @@ import {
   Gift,
   ShieldCheck,
   UserPlus,
+  Moon,
+  Sun,
 } from 'lucide-react';
+import { appLanguages, usePreferences } from '../../context/PreferencesContext';
 
 export type NavigationTab =
   | 'dashboard'
@@ -38,6 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const { user } = useAuth();
   const { currentOrg, payments } = useData();
+  const { language, setLanguage, theme, toggleTheme, t } = usePreferences();
 
   // Pending payments needing validation count
   const pendingPaymentsCount = payments.filter(
@@ -57,56 +61,56 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }> = [
     {
       id: 'dashboard',
-      label: 'Tableau de bord',
+      label: t('Tableau de bord'),
       icon: <LayoutDashboard className="w-4 h-4" />,
     },
     {
       id: 'contributions',
-      label: 'Cotisations',
+      label: t('Cotisations'),
       icon: <Wallet className="w-4 h-4" />,
     },
     {
       id: 'payments',
-      label: 'Paiements',
+      label: t('Paiements'),
       icon: <ArrowLeftRight className="w-4 h-4" />,
       badge: isAdmin && pendingPaymentsCount > 0 ? pendingPaymentsCount : undefined,
     },
     {
       id: 'members',
-      label: 'Membres',
+      label: t('Membres'),
       icon: <Users className="w-4 h-4" />,
     },
     {
       id: 'expenses',
-      label: 'Dépenses',
+      label: t('Dépenses'),
       icon: <Receipt className="w-4 h-4" />,
     },
     {
       id: 'reports',
-      label: 'Rapports & Bilan',
+      label: t('Rapports & Bilan'),
       icon: <BarChart3 className="w-4 h-4" />,
     },
     {
       id: 'settings',
-      label: 'Administration',
+      label: t('Administration'),
       icon: <Settings className="w-4 h-4" />,
       adminOnly: true,
     },
     {
       id: 'referrals',
-      label: 'Parrainage & Gains',
+      label: t('Parrainage & Gains'),
       icon: <Gift className="w-4 h-4" />,
     },
     {
       id: 'superadmin',
-      label: 'Console Super Admin',
+      label: t('Console Super Admin'),
       icon: <ShieldCheck className="w-4 h-4" />,
       superAdminOnly: true,
     },
   ];
 
   return (
-    <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 min-h-screen border-r border-slate-800">
+    <aside className="cotiz-sidebar w-64 text-slate-300 flex flex-col shrink-0 min-h-screen border-r border-slate-800">
       {/* Brand Header */}
       <div className="p-5 flex items-center justify-between border-b border-slate-800">
         <div className="flex items-center gap-3">
@@ -119,7 +123,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <span className="text-lg font-bold text-white tracking-tight leading-none block">
               Cotiz
             </span>
-            <span className="text-[11px] text-slate-400 font-medium">Finance Solidaire</span>
+            <span className="text-[11px] text-slate-300 font-medium">{t('Finance Solidaire')}</span>
           </div>
         </div>
       </div>
@@ -127,7 +131,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Navigation List */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         <div className="px-3 pb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-          Menu Principal
+          {t('Menu Principal')}
         </div>
         {navItems
           .filter(item => {
@@ -161,21 +165,46 @@ export const Sidebar: React.FC<SidebarProps> = ({
           })}
       </nav>
 
+      <div className="cotiz-sidebar-preferences mx-3 mb-3 rounded-xl border border-white/10 bg-white/5 p-3">
+        <label className="mb-2 block text-[10px] font-semibold uppercase tracking-wider text-emerald-100/70">
+          {t('Langue de l’application')}
+        </label>
+        <select
+          value={language}
+          onChange={event => setLanguage(event.target.value as typeof language)}
+          className="cotiz-preference-select mb-2 w-full rounded-lg border border-white/15 bg-black/10 px-2.5 py-2 text-xs text-white outline-none focus:border-orange-300"
+          aria-label={t('Langue de l’application')}
+        >
+          {appLanguages.map(option => (
+            <option key={option.code} value={option.code}>{option.nativeName}</option>
+          ))}
+        </select>
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium text-emerald-50 transition-colors hover:bg-white/10 cursor-pointer"
+          aria-label={theme === 'dark' ? t('Désactiver le mode sombre') : t('Activer le mode sombre')}
+        >
+          <span>{theme === 'dark' ? t('Thème sombre') : t('Thème clair')}</span>
+          {theme === 'dark' ? <Moon className="h-4 w-4 text-orange-300" /> : <Sun className="h-4 w-4 text-orange-300" />}
+        </button>
+      </div>
+
       {/* Invite Member Quick Action Card */}
       {isAdmin && (
         <div className="p-3 mx-3 mb-4 rounded-xl bg-slate-800/60 border border-slate-700/60">
           <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-white">
             <UserPlus className="w-4 h-4 text-emerald-400" />
-            <span>Inviter des membres</span>
+            <span>{t('Inviter des membres')}</span>
           </div>
           <p className="text-[11px] text-slate-400 mb-3 leading-relaxed">
-            Partagez le lien d'adhésion WhatsApp ou scannez le QR code.
+            {t("Partagez le lien d'adhésion WhatsApp ou scannez le QR code.")}
           </p>
           <button
             onClick={onOpenInviteModal}
             className="w-full py-1.5 px-3 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-medium transition-colors cursor-pointer flex items-center justify-center gap-1.5"
           >
-            <span>Générer un lien</span>
+            <span>{t('Générer un lien')}</span>
           </button>
         </div>
       )}
@@ -183,13 +212,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Current Plan footer */}
       <div className="p-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
         <div>
-          <span className="text-[10px] text-slate-500 block">Formule actuelle</span>
+          <span className="text-[10px] text-emerald-100/70 block">{t('Formule actuelle')}</span>
           <span className="font-semibold text-white capitalize">
             {currentOrg.subscriptionPlan}
           </span>
         </div>
         <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-medium">
-          Actif
+          {t('Actif')}
         </span>
       </div>
     </aside>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavigationTab } from './Sidebar';
 import { LayoutDashboard, Wallet, Users, User, ArrowLeftRight } from 'lucide-react';
+import { usePreferences } from '../../context/PreferencesContext';
 
 interface BottomTabBarProps {
   currentTab: NavigationTab;
@@ -13,6 +14,8 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
   onSelectTab,
   onOpenProfile,
 }) => {
+  const { t } = usePreferences();
+
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 px-3 py-1 flex items-center justify-around shadow-lg">
       <button
@@ -22,7 +25,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
         }`}
       >
         <LayoutDashboard className="w-5 h-5 mb-0.5" />
-        <span>Accueil</span>
+        <span>{t('Accueil')}</span>
       </button>
 
       <button
@@ -32,7 +35,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
         }`}
       >
         <Wallet className="w-5 h-5 mb-0.5" />
-        <span>Cotisations</span>
+        <span>{t('Cotisations')}</span>
       </button>
 
       <button
@@ -42,7 +45,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
         }`}
       >
         <ArrowLeftRight className="w-5 h-5 mb-0.5" />
-        <span>Paiements</span>
+        <span>{t('Paiements')}</span>
       </button>
 
       <button
@@ -52,7 +55,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
         }`}
       >
         <Users className="w-5 h-5 mb-0.5" />
-        <span>Membres</span>
+        <span>{t('Membres')}</span>
       </button>
 
       <button
@@ -60,7 +63,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
         className="flex flex-col items-center py-1 px-3 text-[10px] font-medium text-slate-500 hover:text-emerald-800 transition-colors cursor-pointer"
       >
         <User className="w-5 h-5 mb-0.5" />
-        <span>Profil</span>
+        <span>{t('Profil')}</span>
       </button>
     </div>
   );

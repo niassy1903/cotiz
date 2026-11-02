@@ -13,9 +13,11 @@ import {
   PieChart,
   Users,
 } from 'lucide-react';
+import { usePreferences } from '../../context/PreferencesContext';
 
 export const ReportsDashboard: React.FC = () => {
   const { orgMembers, orgContributions, orgPayments, orgExpenses } = useData();
+  const { t } = usePreferences();
 
   const [period, setPeriod] = useState<'semaine' | 'mois' | 'annee'>('mois');
   const [memberSort, setMemberSort] = useState<'paid' | 'name'>('paid');
@@ -80,10 +82,10 @@ export const ReportsDashboard: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
         <div>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            Rapports Financiers & Bilan Analytique
+            {t('Rapports Financiers & Bilan Analytique')}
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Indicateurs de performance, solvabilité et participation des membres
+            {t('Indicateurs de performance, solvabilité et participation des membres')}
           </p>
         </div>
 
@@ -91,9 +93,9 @@ export const ReportsDashboard: React.FC = () => {
           {/* Period selector */}
           <div className="flex items-center gap-1 p-0.5 bg-slate-100 rounded-lg text-xs">
             {[
-              { id: 'semaine', label: 'Cette semaine' },
-              { id: 'mois', label: 'Ce mois' },
-              { id: 'annee', label: 'Cette année' },
+              { id: 'semaine', label: t('Cette semaine') },
+              { id: 'mois', label: t('Ce mois') },
+              { id: 'annee', label: t('Cette année') },
             ].map(p => (
               <button
                 key={p.id}
@@ -113,7 +115,7 @@ export const ReportsDashboard: React.FC = () => {
             onClick={handleExportCSV}
             leftIcon={<Download className="w-3.5 h-3.5" />}
           >
-            Exporter le Bilan
+            {t('Exporter le Bilan')}
           </Button>
         </div>
       </div>
@@ -121,28 +123,28 @@ export const ReportsDashboard: React.FC = () => {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          label="Revenus période"
+          label={t('Revenus période')}
           value={formatFCFA(totalRevenue)}
-          subValue="Collectes Wave & OM"
+          subValue={t('Collectes Wave & OM')}
           icon={<TrendingUp className="w-4 h-4 text-emerald-700" />}
           trend={{ value: '+12%', isPositive: true }}
         />
         <StatCard
-          label="Dépenses période"
+          label={t('Dépenses période')}
           value={formatFCFA(totalExpense)}
-          subValue="Sorties approuvées"
+          subValue={t('Sorties approuvées')}
           icon={<BarChart3 className="w-4 h-4 text-rose-600" />}
         />
         <StatCard
-          label="Bilan net de caisse"
+          label={t('Bilan net de caisse')}
           value={formatFCFA(netBalance)}
-          subValue="Disponibilité immédiate"
+          subValue={t('Disponibilité immédiate')}
           icon={<ShieldCheck className="w-4 h-4 text-emerald-800" />}
         />
         <StatCard
-          label="Taux de régularité"
+          label={t('Taux de régularité')}
           value={`${paymentRate}%`}
-          subValue="Cotisations versées à l'heure"
+          subValue={t("Cotisations versées à l'heure")}
           icon={<PieChart className="w-4 h-4 text-sky-600" />}
         />
       </div>
@@ -158,9 +160,9 @@ export const ReportsDashboard: React.FC = () => {
             <span className="text-[10px] text-slate-400 absolute -bottom-4">/100</span>
           </div>
           <div>
-            <h3 className="text-sm font-bold text-white">Score de Santé Financière</h3>
+            <h3 className="text-sm font-bold text-white">{t('Score de Santé Financière')}</h3>
             <p className="text-xs text-slate-400 mt-0.5 leading-snug">
-              Excellente stabilité de la trésorerie et faible taux d'impayés.
+              {t("Excellente stabilité de la trésorerie et faible taux d'impayés.")}
             </p>
           </div>
         </div>
@@ -169,10 +171,10 @@ export const ReportsDashboard: React.FC = () => {
         <div className="p-3 rounded-lg bg-slate-800/80 border border-slate-700/60 text-xs space-y-1">
           <div className="flex items-center gap-1.5 text-emerald-400 font-semibold">
             <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>Tendance positive</span>
+            <span>{t('Tendance positive')}</span>
           </div>
           <p className="text-slate-300">
-            Paiements par Wave en hausse de +18% ce trimestre, réduisant les manipulations d'espèces.
+            {t("Paiements par Wave en hausse de +18% ce trimestre, réduisant les manipulations d'espèces.")}
           </p>
         </div>
 
@@ -180,10 +182,10 @@ export const ReportsDashboard: React.FC = () => {
         <div className="p-3 rounded-lg bg-slate-800/80 border border-slate-700/60 text-xs space-y-1">
           <div className="flex items-center gap-1.5 text-amber-400 font-semibold">
             <AlertCircle className="w-3.5 h-3.5" />
-            <span>Recommandation</span>
+            <span>{t('Recommandation')}</span>
           </div>
           <p className="text-slate-300">
-            Relancer les 2 membres en retard sur l'échéance du 5 Novembre via notification WhatsApp.
+            {t("Relancer les 2 membres en retard sur l'échéance du 5 Novembre via notification WhatsApp.")}
           </p>
         </div>
       </div>
@@ -192,8 +194,8 @@ export const ReportsDashboard: React.FC = () => {
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div className="p-4 border-b border-slate-200 flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Statistiques Individuelles par Membre</h3>
-            <p className="text-xs text-slate-500">Participation cumulée et régularité</p>
+            <h3 className="text-sm font-bold text-slate-900">{t('Statistiques Individuelles par Membre')}</h3>
+            <p className="text-xs text-slate-500">{t('Participation cumulée et régularité')}</p>
           </div>
 
           <div className="flex items-center gap-1 p-0.5 bg-slate-100 rounded-lg text-xs">
@@ -203,7 +205,7 @@ export const ReportsDashboard: React.FC = () => {
                 memberSort === 'paid' ? 'bg-white text-slate-900 shadow-2xs font-semibold' : 'text-slate-600'
               }`}
             >
-              Par montant payé
+              {t('Par montant payé')}
             </button>
             <button
               onClick={() => setMemberSort('name')}
@@ -211,7 +213,7 @@ export const ReportsDashboard: React.FC = () => {
                 memberSort === 'name' ? 'bg-white text-slate-900 shadow-2xs font-semibold' : 'text-slate-600'
               }`}
             >
-              Par ordre alphabétique
+              {t('Par ordre alphabétique')}
             </button>
           </div>
         </div>
@@ -220,11 +222,11 @@ export const ReportsDashboard: React.FC = () => {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">Membre</th>
-                <th className="py-3 px-4">Téléphone</th>
-                <th className="py-3 px-4 text-right">Total versé (Lifetime)</th>
-                <th className="py-3 px-4 text-center">Taux complétude</th>
-                <th className="py-3 px-4 text-right">Dernier versement</th>
+                <th className="py-3 px-4">{t('Membre')}</th>
+                <th className="py-3 px-4">{t('Téléphone')}</th>
+                <th className="py-3 px-4 text-right">{t('Total versé (Lifetime)')}</th>
+                <th className="py-3 px-4 text-center">{t('Taux complétude')}</th>
+                <th className="py-3 px-4 text-right">{t('Dernier versement')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -266,7 +268,7 @@ export const ReportsDashboard: React.FC = () => {
                   </td>
 
                   <td className="py-3 px-4 text-right text-slate-500">
-                    {stat.lastPayment ? formatDate(stat.lastPayment, { short: true }) : 'Aucun'}
+                    {stat.lastPayment ? formatDate(stat.lastPayment, { short: true }) : t('Aucun')}
                   </td>
                 </tr>
               ))}

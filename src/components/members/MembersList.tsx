@@ -18,9 +18,11 @@ import {
   Eye,
   CheckCheck,
 } from 'lucide-react';
+import { usePreferences } from '../../context/PreferencesContext';
 
 export const MembersList: React.FC = () => {
   const { user } = useAuth();
+  const { t } = usePreferences();
   const {
     currentOrg,
     orgMembers,
@@ -69,10 +71,10 @@ export const MembersList: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
         <div>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            {isAdmin ? 'Gestion des Membres' : 'Annuaire de l’Organisation'}
+            {isAdmin ? t('Gestion des Membres') : t('Annuaire de l’Organisation')}
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            {orgMembers.filter(m => m.status === 'active').length} membres actifs dans {currentOrg.name}
+            {orgMembers.filter(m => m.status === 'active').length} {t('membres actifs dans')} {currentOrg.name}
           </p>
         </div>
 
@@ -84,14 +86,14 @@ export const MembersList: React.FC = () => {
               onClick={() => setIsInviteOpen(true)}
               leftIcon={<Share2 className="w-3.5 h-3.5" />}
             >
-              Lien d'invitation
+              {t("Lien d'invitation")}
             </Button>
             <Button
               size="sm"
               onClick={() => setIsAddOpen(true)}
               leftIcon={<UserPlus className="w-3.5 h-3.5" />}
             >
-              Ajouter un membre
+              {t('Ajouter un membre')}
             </Button>
           </div>
         )}
@@ -102,7 +104,7 @@ export const MembersList: React.FC = () => {
         <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold text-amber-950 flex items-center gap-2">
-              <span>{pendingMembers.length} demande(s) d'adhésion en attente de confirmation</span>
+              <span>{pendingMembers.length} {t("demande(s) d'adhésion en attente de confirmation")}</span>
             </h3>
             <Button
               size="sm"
@@ -110,7 +112,7 @@ export const MembersList: React.FC = () => {
               onClick={handleAcceptAllPending}
               leftIcon={<CheckCheck className="w-3.5 h-3.5" />}
             >
-              Accepter tous
+              {t('Accepter tous')}
             </Button>
           </div>
 
@@ -133,14 +135,14 @@ export const MembersList: React.FC = () => {
                     onClick={() => rejectPendingMember(m.id)}
                     leftIcon={<X className="w-3.5 h-3.5 text-rose-500" />}
                   >
-                    Rejeter
+                    {t('Rejeter')}
                   </Button>
                   <Button
                     size="sm"
                     onClick={() => acceptPendingMember(m.id)}
                     leftIcon={<Check className="w-3.5 h-3.5" />}
                   >
-                    Accepter
+                    {t('Accepter')}
                   </Button>
                 </div>
               </div>
@@ -156,7 +158,7 @@ export const MembersList: React.FC = () => {
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
-            placeholder="Rechercher par nom, téléphone, email..."
+            placeholder={t('Rechercher par nom, téléphone, email...')}
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
@@ -168,10 +170,10 @@ export const MembersList: React.FC = () => {
           {/* Status Tab */}
           <div className="flex items-center gap-1 p-0.5 bg-slate-100 rounded-lg text-xs">
             {[
-              { id: 'active', label: 'Actifs' },
-              { id: 'pending', label: `En attente (${pendingMembers.length})` },
-              { id: 'all', label: 'Tous' },
-              { id: 'archived', label: 'Archivés' },
+              { id: 'active', label: t('Actifs') },
+              { id: 'pending', label: `${t('En attente')} (${pendingMembers.length})` },
+              { id: 'all', label: t('Tous') },
+              { id: 'archived', label: t('Archivés') },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -190,9 +192,9 @@ export const MembersList: React.FC = () => {
           {/* Gender Filter */}
           <div className="flex items-center gap-1 p-0.5 bg-slate-100 rounded-lg text-xs">
             {[
-              { id: 'all', label: 'Tous genres' },
-              { id: 'M', label: 'Hommes' },
-              { id: 'F', label: 'Femmes' },
+              { id: 'all', label: t('Tous genres') },
+              { id: 'M', label: t('Hommes') },
+              { id: 'F', label: t('Femmes') },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -239,12 +241,12 @@ export const MembersList: React.FC = () => {
                         : 'bg-slate-100 text-slate-600'
                     }`}
                   >
-                    {member.role === 'admin' ? 'Admin' : 'Membre'}
+                    {member.role === 'admin' ? t('Admin') : t('Membre')}
                   </span>
                   {member.isGhost && (
                     <span className="text-[10px] font-medium text-amber-600 flex items-center gap-0.5">
                       <Ghost className="w-3 h-3" />
-                      <span>Fantôme</span>
+                      <span>{t('Fantôme')}</span>
                     </span>
                   )}
                 </div>
@@ -252,23 +254,23 @@ export const MembersList: React.FC = () => {
 
               <div className="space-y-1.5 text-xs text-slate-600 pt-2 border-t border-slate-100">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Genre :</span>
+                  <span className="text-slate-400">{t('Genre :')}</span>
                   <span className="font-medium text-slate-800">
-                    {member.gender === 'M' ? 'Masculin' : 'Féminin'}
+                    {member.gender === 'M' ? t('Masculin') : t('Féminin')}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Adhésion :</span>
+                  <span className="text-slate-400">{t('Adhésion :')}</span>
                   <span className="font-medium text-slate-800">{formatDate(member.joinDate)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Accès transactions :</span>
+                  <span className="text-slate-400">{t('Accès transactions :')}</span>
                   <span
                     className={`font-semibold ${
                       member.hasTransactionAccess ? 'text-emerald-700' : 'text-slate-400'
                     }`}
                   >
-                    {member.hasTransactionAccess ? 'Oui' : 'Non'}
+                    {member.hasTransactionAccess ? t('Oui') : t('Non')}
                   </span>
                 </div>
               </div>
@@ -284,7 +286,7 @@ export const MembersList: React.FC = () => {
                     : 'bg-slate-100 text-slate-500'
                 }`}
               >
-                {member.status}
+                {member.status === 'active' ? t('Actif') : member.status === 'pending' ? t('En attente') : t('Archivé')}
               </span>
 
               <Button
@@ -293,7 +295,7 @@ export const MembersList: React.FC = () => {
                 onClick={() => setSelectedMember(member)}
                 leftIcon={<Eye className="w-3.5 h-3.5" />}
               >
-                Fiche détaillée
+                {t('Fiche détaillée')}
               </Button>
             </div>
           </div>

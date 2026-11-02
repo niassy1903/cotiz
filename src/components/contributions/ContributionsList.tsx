@@ -6,6 +6,7 @@ import { ContributionDetailsModal } from './ContributionDetailsModal';
 import { Contribution } from '../../types/contribution';
 import { formatFCFA, formatDate } from '../../utils/formatters';
 import { Wallet, Plus, Calendar, Users, Eye, CheckCircle2, AlertCircle } from 'lucide-react';
+import { usePreferences } from '../../context/PreferencesContext';
 
 interface ContributionsListProps {
   onOpenCreate: () => void;
@@ -18,6 +19,7 @@ export const ContributionsList: React.FC<ContributionsListProps> = ({
 }) => {
   const { user } = useAuth();
   const { orgContributions, orgCycles, orgPayments, orgMembers } = useData();
+  const { t } = usePreferences();
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'archived'>('active');
@@ -36,18 +38,18 @@ export const ContributionsList: React.FC<ContributionsListProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
         <div>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            {isAdmin ? 'Gestion des Cotisations' : 'Mes Cotisations Communautaires'}
+            {isAdmin ? t('Gestion des Cotisations') : t('Mes Cotisations Communautaires')}
           </h1>
           <p className="text-xs text-slate-500 mt-1">
             {isAdmin
-              ? 'Paramétrage des montants, fréquences et suivi des cycles d’échéance'
-              : 'Consultez vos cotisations et effectuez vos règlements'}
+              ? t('Paramétrage des montants, fréquences et suivi des cycles d’échéance')
+              : t('Consultez vos cotisations et effectuez vos règlements')}
           </p>
         </div>
 
         {isAdmin && (
           <Button onClick={onOpenCreate} leftIcon={<Plus className="w-4 h-4" />}>
-            Nouvelle cotisation
+            {t('Nouvelle cotisation')}
           </Button>
         )}
       </div>
@@ -55,9 +57,9 @@ export const ContributionsList: React.FC<ContributionsListProps> = ({
       {/* Filter Tabs */}
       <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg text-xs w-fit">
         {[
-          { id: 'active', label: `Actives (${orgContributions.filter(c => c.status === 'active').length})` },
-          { id: 'all', label: `Toutes (${orgContributions.length})` },
-          { id: 'archived', label: 'Archivées' },
+          { id: 'active', label: `${t('Actives')} (${orgContributions.filter(c => c.status === 'active').length})` },
+          { id: 'all', label: `${t('Toutes')} (${orgContributions.length})` },
+          { id: 'archived', label: t('Archivées') },
         ].map(tab => (
           <button
             key={tab.id}
@@ -97,7 +99,7 @@ export const ContributionsList: React.FC<ContributionsListProps> = ({
                     <Wallet className="w-5 h-5" />
                   </div>
                   <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-600">
-                    {contrib.frequency}
+                    {t(contrib.frequency)}
                   </span>
                 </div>
 
@@ -111,33 +113,33 @@ export const ContributionsList: React.FC<ContributionsListProps> = ({
                   </span>
                   {contrib.targetType === 'by_gender' && (
                     <span className="text-[11px] text-slate-500">
-                      (Femmes : {formatFCFA(contrib.amountFemale || 0)})
+                      ({t('Femmes')} : {formatFCFA(contrib.amountFemale || 0)})
                     </span>
                   )}
                 </div>
 
                 <div className="mt-4 pt-4 border-t border-slate-100 space-y-2 text-xs text-slate-600">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Échéance mensuelle :</span>
+                    <span className="text-slate-400">{t('Échéance mensuelle :')}</span>
                     <span className="font-medium text-slate-800">
-                      Le {contrib.dayOfMonth || 5} de chaque mois
+                      {t('Le')} {contrib.dayOfMonth || 5} {t('de chaque mois')}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Cible :</span>
+                    <span className="text-slate-400">{t('Cible :')}</span>
                     <span className="font-medium text-slate-800 capitalize">
                       {contrib.targetType === 'all'
-                        ? 'Tous les membres'
+                        ? t('Tous les membres')
                         : contrib.targetType === 'by_gender'
-                        ? 'Différencié par genre'
-                        : 'Personnalisé'}
+                        ? t('Différencié par genre')
+                        : t('Personnalisé')}
                     </span>
                   </div>
 
                   {/* Progress bar */}
                   <div className="pt-2">
                     <div className="flex items-center justify-between text-[11px] mb-1">
-                      <span className="text-slate-500">Taux de collecte actuel</span>
+                      <span className="text-slate-500">{t('Taux de collecte actuel')}</span>
                       <span className="font-bold text-slate-900 font-tabular">{percent}%</span>
                     </div>
                     <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
@@ -158,7 +160,7 @@ export const ContributionsList: React.FC<ContributionsListProps> = ({
                   onClick={() => setSelectedContribution(contrib)}
                   leftIcon={<Eye className="w-3.5 h-3.5" />}
                 >
-                  Détails & Cycles
+                  {t('Détails & Cycles')}
                 </Button>
 
                 {!isAdmin && (
@@ -167,7 +169,7 @@ export const ContributionsList: React.FC<ContributionsListProps> = ({
                     variant={userPaid ? 'outline' : 'secondary'}
                     onClick={() => onOpenMakePayment(contrib.id)}
                   >
-                    {userPaid ? 'Payer à nouveau' : 'Régler'}
+                    {userPaid ? t('Payer à nouveau') : t('Régler')}
                   </Button>
                 )}
               </div>
