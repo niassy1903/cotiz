@@ -1,4 +1,5 @@
 import React, { forwardRef } from 'react';
+import { usePreferences } from '../../context/PreferencesContext';
 
 interface SelectOption {
   value: string;
@@ -14,13 +15,14 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ label, error, helperText, options, className = '', id, ...props }, ref) => {
+    const { t } = usePreferences();
     const selectId = id || props.name || Math.random().toString(36).substring(2, 7);
 
     return (
       <div className="w-full">
         {label && (
           <label htmlFor={selectId} className="block text-xs font-semibold text-slate-700 mb-1.5">
-            {label}
+            {t(label)}
             {props.required && <span className="text-rose-500 ml-0.5">*</span>}
           </label>
         )}
@@ -35,7 +37,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           >
             {options.map(opt => (
               <option key={opt.value} value={opt.value}>
-                {opt.label}
+                {t(opt.label)}
               </option>
             ))}
           </select>
@@ -45,8 +47,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             </svg>
           </div>
         </div>
-        {error && <p className="mt-1 text-xs text-rose-600">{error}</p>}
-        {helperText && !error && <p className="mt-1 text-xs text-slate-500">{helperText}</p>}
+        {error && <p className="mt-1 text-xs text-rose-600">{t(error)}</p>}
+        {helperText && !error && <p className="mt-1 text-xs text-slate-500">{t(helperText)}</p>}
       </div>
     );
   }

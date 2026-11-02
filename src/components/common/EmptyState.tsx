@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from './Button';
+import { usePreferences } from '../../context/PreferencesContext';
 
 interface EmptyStateProps {
   icon?: React.ReactNode;
@@ -16,6 +17,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   actionLabel,
   onAction,
 }) => {
+  const { t } = usePreferences();
+
   return (
     <div className="py-12 px-4 text-center max-w-md mx-auto">
       {icon && (
@@ -23,12 +26,12 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           {icon}
         </div>
       )}
-      <h4 className="text-sm font-semibold text-slate-800">{title}</h4>
-      <p className="mt-1 text-xs text-slate-500 leading-relaxed">{description}</p>
+      <h4 className="text-sm font-semibold text-slate-800">{t(title)}</h4>
+      <p className="mt-1 text-xs text-slate-500 leading-relaxed">{t(description)}</p>
       {actionLabel && onAction && (
         <div className="mt-4">
           <Button size="sm" onClick={onAction}>
-            {actionLabel}
+            {t(actionLabel)}
           </Button>
         </div>
       )}

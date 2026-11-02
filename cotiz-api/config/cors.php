@@ -19,9 +19,18 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => array_filter(array_map('trim', explode(',', env(
-        'CORS_ALLOWED_ORIGINS',
-        'http://localhost:3000,http://127.0.0.1:3000,https://cotiz-one.vercel.app/',
+    'allowed_origins' => array_values(array_unique(array_filter(array_map(
+        static fn (string $origin): string => rtrim($origin, '/'),
+        array_map(
+            'trim',
+            array_merge(
+                explode(',', (string) env(
+                    'CORS_ALLOWED_ORIGINS',
+                    'http://localhost:3000,http://127.0.0.1:3000',
+                )),
+                [(string) env('FRONTEND_URL', '')],
+            ),
+        ),
     )))),
 
     'allowed_origins_patterns' => [],

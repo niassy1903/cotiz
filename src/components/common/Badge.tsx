@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePreferences } from '../../context/PreferencesContext';
 
 export type StatusVariant =
   | 'success'
@@ -22,6 +23,8 @@ export const Badge: React.FC<BadgeProps> = ({
   size = 'sm',
   icon,
 }) => {
+  const { t } = usePreferences();
+
   const variantStyles = {
     success: 'bg-emerald-50 text-emerald-800 border-emerald-200',
     warning: 'bg-amber-50 text-amber-800 border-amber-200',
@@ -42,7 +45,7 @@ export const Badge: React.FC<BadgeProps> = ({
       className={`inline-flex items-center gap-1 font-medium rounded-md border ${variantStyles[variant]} ${sizeStyles[size]} whitespace-nowrap`}
     >
       {icon && <span className="shrink-0">{icon}</span>}
-      {children}
+      {typeof children === 'string' ? t(children) : children}
     </span>
   );
 };

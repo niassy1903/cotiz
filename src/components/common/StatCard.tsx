@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePreferences } from '../../context/PreferencesContext';
 
 interface StatCardProps {
   label: string;
@@ -20,6 +21,8 @@ export const StatCard: React.FC<StatCardProps> = ({
   trend,
   onClick,
 }) => {
+  const { t } = usePreferences();
+
   return (
     <div
       onClick={onClick}
@@ -28,7 +31,7 @@ export const StatCard: React.FC<StatCardProps> = ({
       }`}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">{label}</span>
+        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">{t(label)}</span>
         {icon && <div className="text-slate-400 p-1.5 bg-slate-50 rounded-lg">{icon}</div>}
       </div>
 
@@ -47,7 +50,7 @@ export const StatCard: React.FC<StatCardProps> = ({
         )}
       </div>
 
-      {subValue && <p className="mt-1 text-xs text-slate-500">{subValue}</p>}
+      {subValue && <p className="mt-1 text-xs text-slate-500">{t(subValue)}</p>}
     </div>
   );
 };

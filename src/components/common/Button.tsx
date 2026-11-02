@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePreferences } from '../../context/PreferencesContext';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost';
@@ -19,6 +20,7 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
+  const { t } = usePreferences();
   const baseClasses =
     'inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none cursor-pointer whitespace-nowrap shrink-0 rounded-lg select-none';
 
@@ -65,7 +67,7 @@ export const Button: React.FC<ButtonProps> = ({
       ) : leftIcon ? (
         <span className="shrink-0">{leftIcon}</span>
       ) : null}
-      <span>{children}</span>
+      <span>{typeof children === 'string' ? t(children) : children}</span>
       {!isLoading && rightIcon && <span className="shrink-0">{rightIcon}</span>}
     </button>
   );

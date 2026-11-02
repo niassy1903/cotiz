@@ -54,7 +54,7 @@ Le fichier `../render.yaml` déclare un service Web Docker. Dans Render, créez 
 
 - `APP_KEY` : générez une clé avec `php artisan key:generate --show` dans `cotiz-api`.
 - `APP_URL` : URL publique du service API sur Render.
-- `FRONTEND_URL` et `CORS_ALLOWED_ORIGINS` : URL publique du frontend (sans slash final).
+- `FRONTEND_URL` et `CORS_ALLOWED_ORIGINS` : URL publique du frontend. Les slashs finaux sont normalisés pour éviter les erreurs de correspondance CORS.
 - `DB_DSN` : URI de connexion MongoDB Atlas; ne la commitez jamais.
 - `RESEND_API_KEY` : clé API créée dans Resend, à saisir comme secret Render.
 - `MAIL_FROM_ADDRESS` : adresse d’expédition sur un domaine vérifié dans Resend.
@@ -73,7 +73,7 @@ La découverte des paquets pendant le build utilise temporairement SQLite en mé
 - Les validations métier et les mutations financières sont exécutées côté serveur; la validation d’un paiement met à jour son échéance dans une transaction MongoDB.
 - Les invitations sont à usage unique et expirent après 72 heures; les codes de parrainage suivent les nouvelles inscriptions.
 - Les échéances récurrentes sont générées quotidiennement; les suppressions différées sont purgées après 30 jours.
-- Le CORS est limité à `CORS_ALLOWED_ORIGINS`; configurez les origines exactes au déploiement.
+- Le CORS est limité à `CORS_ALLOWED_ORIGINS` et `FRONTEND_URL`; configurez les origines publiques exactes au déploiement.
 - Pour la production, configurez une base durable, `APP_DEBUG=false`, HTTPS, un fournisseur de courriel et des secrets opérateur.
 
 Wave et Orange Money ne sont pas connectés à leurs API de paiement : le backend gère les déclarations, références et validations manuelles. Les commissions d’affiliation restent à zéro tant qu’un système de facturation réel n’est pas branché.

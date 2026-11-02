@@ -45,6 +45,15 @@ html.dark [class*="bg-red-50"] {
   background-color: #3d2223 !important;
 }
 
+html.dark [class*="bg-blue-50"],
+html.dark [class*="bg-sky-50"] {
+  background-color: #183044 !important;
+}
+
+html.dark [class*="bg-orange-50"] {
+  background-color: #3d2c1e !important;
+}
+
 html.dark [class*="text-slate-900"],
 html.dark [class*="text-slate-800"],
 html.dark [class*="text-gray-900"],
@@ -96,10 +105,16 @@ html.dark [class*="text-yellow-700"] {
 html.dark [class*="text-sky-900"],
 html.dark [class*="text-sky-800"],
 html.dark [class*="text-sky-700"],
+html.dark [class*="text-blue-900"],
+html.dark [class*="text-blue-800"],
+html.dark [class*="text-blue-700"] {
+  color: #7dd3fc !important;
+}
+
 html.dark [class*="text-orange-900"],
 html.dark [class*="text-orange-800"],
 html.dark [class*="text-orange-700"] {
-  color: #7dd3fc !important;
+  color: #fdba74 !important;
 }
 
 html.dark [class*="border-slate-"],
