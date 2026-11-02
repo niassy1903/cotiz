@@ -1,5 +1,10 @@
 <?php
 
+$mailFromAddress = env('MAIL_FROM_ADDRESS');
+if ($mailFromAddress === '${MAIL_USERNAME}') {
+    $mailFromAddress = env('MAIL_USERNAME');
+}
+
 return [
 
     /*
@@ -111,7 +116,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
+        'address' => $mailFromAddress ?: env('MAIL_USERNAME', 'hello@example.com'),
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 

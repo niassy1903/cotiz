@@ -26,7 +26,7 @@ Vérifiez que l’extension MongoDB est activée dans le PHP CLI avant d’exéc
 
 3. Dans un autre terminal, lancer le planificateur Laravel : `cd cotiz-api && php artisan schedule:work`.
 4. Dans un autre terminal à la racine, lancer `npm run dev`.
-5. L’URL API frontend par défaut est `http://localhost:8000/api/v1`. Pour la modifier, définir `VITE_API_URL` dans `.env.local`.
+5. L’URL API par défaut est `https://cotiz-api.onrender.com/api/v1`. Pour utiliser une API locale, définir `VITE_API_URL=http://localhost:8000/api/v1` dans `.env.local`, puis relancer Vite. Pour un autre déploiement frontend, définir `VITE_API_URL` avant le build.
 
 Les données de démonstration ont été supprimées. Créez un compte depuis l’écran d’inscription; les données métier sont persistées dans la base `cotiz`.
 Pour initialiser le rôle global, inscrivez le compte puis exécutez `php artisan cotiz:promote-superadmin adresse@example.com` depuis `cotiz-api`.

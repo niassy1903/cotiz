@@ -60,7 +60,7 @@ Le fichier `../render.yaml` déclare un service Web Docker. Dans Render, créez 
 - `APP_URL` : URL publique du service API sur Render.
 - `FRONTEND_URL` et `CORS_ALLOWED_ORIGINS` : URL publique du frontend (sans slash final).
 - `DB_DSN` : URI de connexion MongoDB Atlas; ne la commitez jamais.
-- `MAIL_USERNAME`, `MAIL_PASSWORD` et `MAIL_FROM_ADDRESS` : compte et identifiants SMTP.
+- `MAIL_USERNAME` et `MAIL_PASSWORD` : compte et identifiants SMTP. L’expéditeur reprend `MAIL_USERNAME` par défaut; si `MAIL_FROM_ADDRESS` est défini manuellement dans Render, saisissez une vraie adresse e-mail, pas le texte `${MAIL_USERNAME}`.
 
 Après le premier déploiement, exécutez `php artisan migrate --force` une seule fois depuis un shell du service. Le contrôle de santé utilise `/up`. Les services gratuits Render peuvent s'endormir après une période d'inactivité; MongoDB Atlas reste la base de données persistante.
 

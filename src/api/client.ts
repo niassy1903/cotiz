@@ -6,7 +6,9 @@ import { Payment } from '../types/payment';
 import { Expense } from '../types/expense';
 import { AppNotification, AuditLog } from '../types';
 
-const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1').replace(/\/+$/, '');
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL || 'https://cotiz-api.onrender.com/api/v1'
+).replace(/\/+$/, '');
 export const AUTH_TOKEN_KEY = 'cotiz_api_token';
 
 export function getAuthToken(): string | null {
