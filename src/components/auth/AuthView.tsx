@@ -4,7 +4,7 @@ import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import { Select } from '../common/Select';
 import { Gender } from '../../types/auth';
-import { api, getApiErrorMessage } from '../../api/client';
+import { api, ApiError, getApiErrorMessage } from '../../api/client';
 import communityImage from '../../assets/images/cotiz_community_solidarity_1793623091783.jpg';
 import paymentImage from '../../assets/images/cotiz_mobile_payment_1793623091703.jpg';
 import transparencyImage from '../../assets/images/cotiz_growth_transparency_1793623092103.jpg';
@@ -87,6 +87,7 @@ export const AuthView: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [signupErrors, setSignupErrors] = useState<Record<string, string>>({});
   const [successMsg, setSuccessMsg] = useState('');
   const [otpChallenge, setOtpChallenge] = useState('');
   const [otpExpiresAt, setOtpExpiresAt] = useState('');
@@ -103,6 +104,24 @@ export const AuthView: React.FC = () => {
   const [invitationName, setInvitationName] = useState('');
   const [enteredReferralCode, setEnteredReferralCode] = useState(referralCode || '');
   const [isInviteLoading, setIsInviteLoading] = useState(Boolean(invitationToken));
+
+  const clearSignupError = (field: string) => {
+    setSignupErrors(current => {
+      if (!(field in current)) return current;
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const signupError = (field: string) => signupErrors[field];
+  const passwordRequirements: Array<[string, boolean]> = [
+    [t('12 à 72 caractères'), password.length >= 12 && password.length <= 72],
+    [t('Une lettre minuscule'), /[a-z]/.test(password)],
+    [t('Une lettre majuscule'), /[A-Z]/.test(password)],
+    [t('Un chiffre'), /\d/.test(password)],
+    [t('Un symbole'), /[^A-Za-z\d]/.test(password)],
+  ];
 
   useEffect(() => {
     if (mode !== 'otp') return;
@@ -213,26 +232,121 @@ export const AuthView: React.FC = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
-    if (!firstName || !lastName || !email || !phone || (!invitationToken && !organizationName) || password.length < 8) {
-      setErrorMsg(t('Veuillez remplir tous les champs obligatoires.'));
+    const errors: Record<string, string> = {};
+    const normalizedPhone = phone.replace(/[\s().-]/g, '');
+    if (!firstName.trim()) errors.firstName = t('Saisissez votre prénom.');
+    if (!lastName.trim()) errors.lastName = t('Saisissez votre nom.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      errors.email = t('Saisissez une adresse e-mail valide.');
+    }
+    if (!/^\+?[1-9]\d{7,15}$/.test(normalizedPhone)) {
+      errors.phone = t('Saisissez un numéro de téléphone valide.');
+    }
+    if (!invitationToken && organizationName.trim().length < 2) {
+      errors.organizationName = t('Le nom de l’organisation doit contenir au moins 2 caractères.');
+    }
+    if (
+      password.length < 12 ||
+      password.length > 72 ||
+      !/[a-z]/.test(password) ||
+      !/[A-Z]/.test(password) ||
+      !/\d/.test(password) ||
+      !/[^A-Za-z\d]/.test(password)
+    ) {
+      errors.password = t('Le mot de passe ne respecte pas encore les critères de sécurité.');
+    }
+    if (passwordConfirmation !== password) {
+      errors.passwordConfirmation = t('La confirmation ne correspond pas au mot de passe.');
+    }
+    setSignupErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      setErrorMsg(t('Corrigez les champs signalés ci-dessous.'));
       return;
     }
     if (isInviteLoading) return;
     setIsLoading(true);
     try {
       await signup({
-        firstName,
-        lastName,
-        email,
-        phone,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim(),
+        phone: normalizedPhone,
         gender,
         password,
-        organizationName: invitationName || organizationName,
+        passwordConfirmation,
+        organizationName: (invitationName || organizationName).trim(),
         invitationToken,
         referralCode: enteredReferralCode.trim() || undefined,
       });
     } catch (error) {
-      setErrorMsg(getApiErrorMessage(error));
+      if (error instanceof ApiError && error.errors) {
+        const fieldNames: Record<string, string> = {
+          first_name: 'firstName',
+          last_name: 'lastName',
+          email: 'email',
+          phone: 'phone',
+          organization_name: 'organizationName',
+          invite_token: 'organizationName',
+          password: 'password',
+          password_confirmation: 'passwordConfirmation',
+        };
+        const messages = Object.fromEntries(
+          Object.entries(error.errors).map(([field, messages]) => {
+            const name = fieldNames[field] || field;
+            const message = messages[0] || t('Vérifiez ce champ.');
+            if (message.startsWith('validation.min.string')) {
+              return [
+                name,
+                field === 'password'
+                  ? t('Le mot de passe doit contenir au moins 12 caractères.')
+                  : field === 'organization_name'
+                  ? t('Le nom de l’organisation doit contenir au moins 2 caractères.')
+                  : t('Cette valeur est trop courte.'),
+              ];
+            }
+            if (message.startsWith('validation.required')) {
+              return [name, t('Ce champ est obligatoire.')];
+            }
+            if (message.startsWith('validation.confirmed')) {
+              return [name, t('La confirmation ne correspond pas au mot de passe.')];
+            }
+            if (message.startsWith('validation.email')) {
+              return [name, t('Saisissez une adresse e-mail valide.')];
+            }
+            if (message.startsWith('validation.regex')) {
+              return [name, t('Le format saisi est invalide.')];
+            }
+            if (message.startsWith('validation.unique')) {
+              return [
+                name,
+                field === 'email'
+                  ? t('Cette adresse e-mail est déjà utilisée.')
+                  : field === 'phone'
+                  ? t('Ce numéro de téléphone est déjà utilisé.')
+                  : t('Cette valeur est déjà utilisée.'),
+              ];
+            }
+            if (message.startsWith('validation.max.string')) {
+              return [
+                name,
+                field === 'password'
+                  ? t('Le mot de passe ne peut pas dépasser 72 caractères.')
+                  : t('Cette valeur est trop longue.'),
+              ];
+            }
+            return [
+              name,
+              message.startsWith('validation.')
+                ? t('Valeur invalide. Vérifiez ce champ.')
+                : message,
+            ];
+          }),
+        );
+        setSignupErrors(messages);
+        setErrorMsg(t('Corrigez les champs signalés ci-dessous.'));
+      } else {
+        setErrorMsg(getApiErrorMessage(error));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -458,6 +572,7 @@ export const AuthView: React.FC = () => {
                   setMode('signin');
                   setErrorMsg('');
                   setSuccessMsg('');
+                  setSignupErrors({});
                 }}
                 className={`py-2 rounded-lg transition-all cursor-pointer ${
                   mode === 'signin'
@@ -474,6 +589,7 @@ export const AuthView: React.FC = () => {
                   setMode('signup');
                   setErrorMsg('');
                   setSuccessMsg('');
+                  setSignupErrors({});
                 }}
                 className={`py-2 rounded-lg transition-all cursor-pointer ${
                   mode === 'signup'
@@ -648,14 +764,22 @@ export const AuthView: React.FC = () => {
                   label={t('Prénom')}
                   placeholder="Ex: Ibrahima"
                   value={firstName}
-                  onChange={e => setFirstName(e.target.value)}
+                  onChange={e => {
+                    setFirstName(e.target.value);
+                    clearSignupError('firstName');
+                  }}
+                  error={signupError('firstName')}
                   required
                 />
                 <Input
                   label={t('Nom')}
                   placeholder="Ex: Diallo"
                   value={lastName}
-                  onChange={e => setLastName(e.target.value)}
+                  onChange={e => {
+                    setLastName(e.target.value);
+                    clearSignupError('lastName');
+                  }}
+                  error={signupError('lastName')}
                   required
                 />
               </div>
@@ -665,7 +789,11 @@ export const AuthView: React.FC = () => {
                 type="email"
                 placeholder="ibrahima.diallo@cotiz.sn"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={e => {
+                  setEmail(e.target.value);
+                  clearSignupError('email');
+                }}
+                error={signupError('email')}
                 leftIcon={<Mail className="w-4 h-4" />}
                 required
               />
@@ -675,7 +803,11 @@ export const AuthView: React.FC = () => {
                 type="tel"
                 placeholder="+221 77 000 00 00"
                 value={phone}
-                onChange={e => setPhone(e.target.value)}
+                onChange={e => {
+                  setPhone(e.target.value);
+                  clearSignupError('phone');
+                }}
+                error={signupError('phone')}
                 leftIcon={<Phone className="w-4 h-4" />}
                 helperText={t('Requis pour recevoir les notifications de versement')}
                 required
@@ -683,9 +815,13 @@ export const AuthView: React.FC = () => {
 
               <Input
                 label={invitationToken ? t("Organisation d'invitation") : t('Nom de votre organisation')}
-                placeholder={t('Ex. Association, dahira ou tontine')}
+                placeholder={t('Ex. : Association, dahira ou tontine (2 caractères minimum)')}
                 value={organizationName}
-                onChange={e => setOrganizationName(e.target.value)}
+                onChange={e => {
+                  setOrganizationName(e.target.value);
+                  clearSignupError('organizationName');
+                }}
+                error={signupError('organizationName')}
                 disabled={Boolean(invitationToken)}
                 helperText={invitationToken ? (isInviteLoading ? t('Vérification du lien…') : `${t('Vous rejoignez')} ${invitationName}.`) : undefined}
                 required
@@ -712,13 +848,45 @@ export const AuthView: React.FC = () => {
                 <Input
                   label={t('Mot de passe')}
                   type="password"
-                  minLength={8}
-                  placeholder="••••••••"
+                  minLength={12}
+                  maxLength={72}
+                  autoComplete="new-password"
+                  placeholder={t('12 à 72 caractères : majuscule, minuscule, chiffre, symbole')}
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={e => {
+                    setPassword(e.target.value);
+                    clearSignupError('password');
+                    if (passwordConfirmation) clearSignupError('passwordConfirmation');
+                  }}
+                  error={signupError('password')}
+                  helperText={t('Requis : 12 à 72 caractères, une majuscule, une minuscule, un chiffre et un symbole.')}
                   required
                 />
               </div>
+
+              <Input
+                label={t('Confirmer le mot de passe')}
+                type="password"
+                minLength={12}
+                maxLength={72}
+                autoComplete="new-password"
+                placeholder={t('Saisissez à nouveau le même mot de passe')}
+                value={passwordConfirmation}
+                onChange={e => {
+                  setPasswordConfirmation(e.target.value);
+                  clearSignupError('passwordConfirmation');
+                }}
+                error={signupError('passwordConfirmation')}
+                required
+              />
+
+              <ul className="space-y-1 text-[11px] text-slate-500" aria-label={t('Critères du mot de passe')}>
+                {passwordRequirements.map(([label, valid]) => (
+                  <li key={label} className={valid ? 'text-emerald-700' : undefined}>
+                    {valid ? '✓' : '○'} {label}
+                  </li>
+                ))}
+              </ul>
 
               <p className="text-[11px] text-slate-500 pt-1 leading-snug">
                 {t('En créant un compte, vous acceptez le règlement financier de votre organisation et la charte de confidentialité Cotiz.')}

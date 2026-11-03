@@ -17,6 +17,7 @@ interface AuthContextType {
     phone: string;
     gender: Gender;
     password: string;
+    passwordConfirmation: string;
     organizationName?: string;
     invitationToken?: string;
     referralCode?: string;
@@ -95,6 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     phone: string;
     gender: Gender;
     password: string;
+    passwordConfirmation: string;
     organizationName?: string;
     invitationToken?: string;
     referralCode?: string;
@@ -102,7 +104,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAuthError(null);
     const result = await api.auth.register({
       ...data,
-      passwordConfirmation: data.password,
     });
     sessionStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.setItem(AUTH_TOKEN_KEY, result.token);
