@@ -56,3 +56,17 @@ cd cotiz-flutter
 flutter pub get
 flutter run
 ```
+
+## 🍎 Build iOS et ouverture dans Xcode
+
+Le projet iOS utilise le nom **Cotiz**, l'identifiant de bundle `com.cotiz.cotiz` et le logo Cotiz comme icône de l'application.
+
+```bash
+cd cotiz-flutter
+flutter build ios --no-codesign
+open ios/Runner.xcworkspace
+```
+
+Le build sans signature permet de vérifier le projet et de l'ouvrir dans Xcode. Pour installer l'application sur un appareil ou la distribuer, configure une équipe de signature dans Xcode.
+
+L'application ne déclare pas de permissions iOS sensibles ; les fonctionnalités qui en nécessiteront devront demander l'accord au moment de leur utilisation.
