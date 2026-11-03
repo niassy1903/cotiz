@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
-import '../onboarding/onboarding_screen.dart';
+import '../../../providers/auth_provider.dart';
+import '../auth/login_screen.dart';
+import '../home/main_navigation_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -9,14 +12,20 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
+  bool _minimumSplashElapsed = false;
+  bool _hasNavigated = false;
+  late AuthProvider _auth;
 
   @override
   void initState() {
     super.initState();
+    _auth = Provider.of<AuthProvider>(context, listen: false);
+    _auth.addListener(_continueWhenReady);
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -31,22 +40,38 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     _controller.forward();
 
-    Future.delayed(const Duration(milliseconds: 2500), () {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (_, __, ___) => const OnboardingScreen(),
-            transitionsBuilder: (_, animation, __, child) =>
-                FadeTransition(opacity: animation, child: child),
-            transitionDuration: const Duration(milliseconds: 600),
-          ),
-        );
-      }
+    Future<void>.delayed(const Duration(milliseconds: 900), () {
+      if (!mounted) return;
+      _minimumSplashElapsed = true;
+      _continueWhenReady();
     });
+    _continueWhenReady();
+  }
+
+  void _continueWhenReady() {
+    if (!mounted ||
+        !_minimumSplashElapsed ||
+        _auth.isLoading ||
+        _hasNavigated) {
+      return;
+    }
+    _hasNavigated = true;
+    _auth.removeListener(_continueWhenReady);
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => _auth.isAuthenticated
+            ? const MainNavigationScreen()
+            : const LoginScreen(),
+        transitionsBuilder: (_, animation, __, child) =>
+            FadeTransition(opacity: animation, child: child),
+        transitionDuration: const Duration(milliseconds: 400),
+      ),
+    );
   }
 
   @override
   void dispose() {
+    _auth.removeListener(_continueWhenReady);
     _controller.dispose();
     super.dispose();
   }
@@ -66,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primary.withOpacity(0.15),
+                color: AppColors.primary.withValues(alpha: 0.15),
               ),
             ),
           ),
@@ -87,7 +112,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Colors.black.withValues(alpha: 0.3),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -117,7 +142,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       'Finance communautaire & solidaire',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                       ),
                     ),
                     const SizedBox(height: 48),
@@ -126,7 +151,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       height: 24,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.secondary),
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(AppColors.secondary),
                       ),
                     ),
                   ],
@@ -143,7 +169,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.white.withOpacity(0.4),
+                color: Colors.white.withValues(alpha: 0.4),
                 letterSpacing: 0.5,
               ),
             ),

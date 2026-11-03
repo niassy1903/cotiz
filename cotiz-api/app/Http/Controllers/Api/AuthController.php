@@ -26,16 +26,34 @@ class AuthController extends Controller
     public function register(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'first_name' => ['required', 'string', 'max:100'],
-            'last_name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['required', 'string', 'max:40'],
+            'first_name' => ['required', 'string', 'max:100', 'regex:/^[\pL][\pL\s\-\'.]{1,99}$/u'],
+            'last_name' => ['required', 'string', 'max:100', 'regex:/^[\pL][\pL\s\-\'.]{1,99}$/u'],
+            'email' => ['required', 'string', 'email:rfc,dns', 'max:254', 'unique:users,email'],
+            'phone' => ['required', 'string', 'max:20', 'regex:/^\+?[1-9]\d{7,15}$/'],
             'gender' => ['required', 'in:M,F'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:12', 'max:72', 'confirmed', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{12,72}$/'],
             'organization_name' => [Rule::requiredIf(! $request->filled('invite_token')), 'nullable', 'string', 'min:2', 'max:150'],
             'invite_token' => ['nullable', 'string', 'size:48'],
             'referral_code' => ['nullable', 'string', 'exists:referral_profiles,code'],
         ]);
+
+        $normalizedEmail = $this->normalizeEmail((string) $data['email']);
+        $normalizedPhone = $this->normalizePhone((string) $data['phone']);
+
+        if (User::where('email', $normalizedEmail)->exists()) {
+            throw ValidationException::withMessages([
+                'email' => ['Cette adresse e-mail est déjà utilisée.'],
+            ]);
+        }
+
+        if (User::where('phone', $normalizedPhone)->exists()) {
+            throw ValidationException::withMessages([
+                'phone' => ['Ce numéro de téléphone est déjà utilisé.'],
+            ]);
+        }
+
+        $data['email'] = $normalizedEmail;
+        $data['phone'] = $normalizedPhone;
 
         [$user, $organization] = DB::transaction(function () use ($data): array {
             $invitation = null;
@@ -112,17 +130,20 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
+            'email' => ['required', 'string', 'email:rfc,dns', 'max:254'],
+            'password' => ['required', 'string', 'min:8', 'max:72'],
         ]);
 
-        $user = User::where('email', strtolower($data['email']))->first();
+        $normalizedEmail = $this->normalizeEmail((string) $data['email']);
+        $user = User::where('email', $normalizedEmail)->first();
 
         if (! $user || ! Hash::check($data['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['Les identifiants fournis sont incorrects.'],
             ]);
         }
+
+        $data['email'] = $normalizedEmail;
 
         $challenge = $this->issueLoginOtp($user);
 
@@ -261,12 +282,22 @@ class AuthController extends Controller
     {
         $user = $request->user();
         $data = $request->validate([
-            'first_name' => ['sometimes', 'required', 'string', 'max:100'],
-            'last_name' => ['sometimes', 'required', 'string', 'max:100'],
-            'phone' => ['sometimes', 'required', 'string', 'max:40'],
+            'first_name' => ['sometimes', 'required', 'string', 'max:100', 'regex:/^[\pL][\pL\s\-\'.]{1,99}$/u'],
+            'last_name' => ['sometimes', 'required', 'string', 'max:100', 'regex:/^[\pL][\pL\s\-\'.]{1,99}$/u'],
+            'phone' => ['sometimes', 'required', 'string', 'max:20', 'regex:/^\+?[1-9]\d{7,15}$/'],
             'gender' => ['sometimes', 'required', 'in:M,F'],
             'avatar' => ['sometimes', 'nullable', 'url', 'max:2048'],
         ]);
+
+        if (isset($data['phone'])) {
+            $normalizedPhone = $this->normalizePhone((string) $data['phone']);
+            if (User::where('phone', $normalizedPhone)->whereKeyNot($user->id)->exists()) {
+                throw ValidationException::withMessages([
+                    'phone' => ['Ce numéro de téléphone est déjà utilisé.'],
+                ]);
+            }
+            $data['phone'] = $normalizedPhone;
+        }
 
         if (isset($data['first_name']) || isset($data['last_name'])) {
             $data['name'] = trim(($data['first_name'] ?? $user->first_name).' '.($data['last_name'] ?? $user->last_name));
@@ -301,10 +332,12 @@ class AuthController extends Controller
     public function resetPassword(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'email' => ['required', 'email'],
+            'email' => ['required', 'string', 'email:rfc,dns', 'max:254'],
             'token' => ['required', 'string'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:12', 'max:72', 'confirmed', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{12,72}$/'],
         ]);
+
+        $data['email'] = $this->normalizeEmail((string) $data['email']);
 
         $status = Password::reset($data, function (User $user, string $password): void {
             $user->forceFill([
@@ -320,6 +353,25 @@ class AuthController extends Controller
         }
 
         return response()->json(['message' => __($status)]);
+    }
+
+    private function normalizeEmail(string $email): string
+    {
+        return strtolower(trim($email));
+    }
+
+    private function normalizePhone(string $phone): string
+    {
+        $digits = preg_replace('/[^\d+]/', '', trim($phone));
+        $digits = preg_replace('/^00/', '+', $digits);
+
+        if (! preg_match('/^\+?[1-9]\d{7,15}$/', $digits)) {
+            throw ValidationException::withMessages([
+                'phone' => ['Le numéro de téléphone doit contenir entre 8 et 15 chiffres et peut commencer par +.'],
+            ]);
+        }
+
+        return $digits;
     }
 
     private function userPayload(User $user, ?Organization $organization): array

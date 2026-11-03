@@ -24,6 +24,22 @@ class User extends Authenticatable
 
     protected $attributes = ['global_role' => 'member'];
 
+    public function setEmailAttribute(string $value): void
+    {
+        $this->attributes['email'] = strtolower(trim($value));
+    }
+
+    public function setPhoneAttribute(?string $value): void
+    {
+        if ($value === null || trim($value) === '') {
+            $this->attributes['phone'] = null;
+
+            return;
+        }
+
+        $this->attributes['phone'] = preg_replace('/[^\d+]/', '', trim($value));
+    }
+
     public function memberships(): HasMany
     {
         return $this->hasMany(OrganizationMember::class);

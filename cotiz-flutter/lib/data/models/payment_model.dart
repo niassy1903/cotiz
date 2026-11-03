@@ -11,6 +11,9 @@ class PaymentModel {
   final String status; // pending, validated, rejected, cancelled
   final String paymentDate;
   final String? notes;
+  final String? cycleId;
+  final String? rejectReason;
+  final String? validatedBy;
 
   PaymentModel({
     required this.id,
@@ -25,6 +28,9 @@ class PaymentModel {
     required this.status,
     required this.paymentDate,
     this.notes,
+    this.cycleId,
+    this.rejectReason,
+    this.validatedBy,
   });
 
   factory PaymentModel.fromJson(Map<String, dynamic> json) {
@@ -41,6 +47,9 @@ class PaymentModel {
       status: json['status'] ?? 'pending',
       paymentDate: json['payment_date'] ?? json['paymentDate'] ?? DateTime.now().toIso8601String(),
       notes: json['notes'],
+      cycleId: (json['cycle_id'] ?? json['cycleId'])?.toString(),
+      rejectReason: (json['reject_reason'] ?? json['rejectReason'])?.toString(),
+      validatedBy: (json['validated_by'] ?? json['validatedBy'])?.toString(),
     );
   }
 
@@ -58,6 +67,9 @@ class PaymentModel {
       'status': status,
       'payment_date': paymentDate,
       'notes': notes,
+      'cycle_id': cycleId,
+      'reject_reason': rejectReason,
+      'validated_by': validatedBy,
     };
   }
 }

@@ -24,6 +24,26 @@ class UserModel {
   String get fullName => '$firstName $lastName';
   bool get isAdmin => role == 'admin' || role == 'superadmin';
 
+  UserModel copyWith({
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? phone,
+    String? gender,
+    String? avatar,
+  }) =>
+      UserModel(
+        id: id,
+        firstName: firstName ?? this.firstName,
+        lastName: lastName ?? this.lastName,
+        email: email ?? this.email,
+        phone: phone ?? this.phone,
+        gender: gender ?? this.gender,
+        role: role,
+        currentOrgId: currentOrgId,
+        avatar: avatar ?? this.avatar,
+      );
+
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id']?.toString() ?? '',

@@ -46,6 +46,37 @@ class ApiTest extends TestCase
         $this->assertDatabaseHas('organization_members', ['role' => 'admin', 'status' => 'active']);
     }
 
+    public function test_registration_rejects_duplicate_email_and_phone(): void
+    {
+        User::factory()->create([
+            'email' => 'duplicate@example.test',
+            'phone' => '+221770000001',
+            'password' => 'StrongPass123!',
+        ]);
+
+        $this->postJson('/api/v1/auth/register', [
+            'first_name' => 'Moussa',
+            'last_name' => 'Diop',
+            'email' => 'duplicate@example.test',
+            'phone' => '+221770000099',
+            'gender' => 'M',
+            'password' => 'StrongPass123!',
+            'password_confirmation' => 'StrongPass123!',
+            'organization_name' => 'Association Test',
+        ])->assertUnprocessable()->assertJsonValidationErrors(['email']);
+
+        $this->postJson('/api/v1/auth/register', [
+            'first_name' => 'Awa',
+            'last_name' => 'Ndiaye',
+            'email' => 'awa@example.test',
+            'phone' => '+221770000001',
+            'gender' => 'F',
+            'password' => 'StrongPass123!',
+            'password_confirmation' => 'StrongPass123!',
+            'organization_name' => 'Association Deux',
+        ])->assertUnprocessable()->assertJsonValidationErrors(['phone']);
+    }
+
     public function test_private_api_requires_a_sanctum_token(): void
     {
         $this->getJson('/api/v1/bootstrap')->assertUnauthorized();

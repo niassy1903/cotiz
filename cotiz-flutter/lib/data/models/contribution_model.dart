@@ -8,6 +8,8 @@ class ContributionModel {
   final String frequency;
   final int? dayOfMonth;
   final String status;
+  final String? startDate;
+  final String targetType;
 
   ContributionModel({
     required this.id,
@@ -19,6 +21,8 @@ class ContributionModel {
     required this.frequency,
     this.dayOfMonth,
     required this.status,
+    this.startDate,
+    this.targetType = 'all',
   });
 
   factory ContributionModel.fromJson(Map<String, dynamic> json) {
@@ -32,6 +36,10 @@ class ContributionModel {
       frequency: json['frequency'] ?? 'monthly',
       dayOfMonth: json['day_of_month'] ?? json['dayOfMonth'],
       status: json['status'] ?? 'active',
+      startDate: (json['start_date'] ?? json['startDate'])?.toString(),
+      targetType: json['target_type']?.toString() ??
+          json['targetType']?.toString() ??
+          'all',
     );
   }
 
@@ -46,6 +54,8 @@ class ContributionModel {
       'frequency': frequency,
       'day_of_month': dayOfMonth,
       'status': status,
+      'start_date': startDate,
+      'target_type': targetType,
     };
   }
 }

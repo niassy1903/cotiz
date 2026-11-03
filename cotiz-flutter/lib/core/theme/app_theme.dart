@@ -12,8 +12,7 @@ class AppTheme {
         seedColor: AppColors.primary,
         primary: AppColors.primary,
         secondary: AppColors.secondary,
-        surface: AppColors.surface,
-        background: AppColors.background,
+        surface: AppColors.background,
       ),
       scaffoldBackgroundColor: AppColors.background,
       textTheme: baseText.copyWith(

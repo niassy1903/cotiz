@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/network/api_client.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/cotiz_provider.dart';
@@ -14,8 +15,10 @@ class MakePaymentScreen extends StatefulWidget {
 }
 
 class _MakePaymentScreenState extends State<MakePaymentScreen> {
-  late String _selectedContributionId;
+  String? _selectedContributionId;
+  String? _selectedMemberId;
   final _amountController = TextEditingController(text: '5000');
+  final _transactionController = TextEditingController();
   String _method = 'wave';
   bool _isProcessing = false;
 
@@ -23,20 +26,45 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
   void initState() {
     super.initState();
     final cotiz = Provider.of<CotizProvider>(context, listen: false);
-    _selectedContributionId = widget.preselectedId ?? cotiz.contributions.first.id;
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    _selectedContributionId = widget.preselectedId ??
+        cotiz.contributions
+            .where((contribution) => contribution.status == 'active')
+            .firstOrNull
+            ?.id;
+    _selectedMemberId = cotiz.memberIdForUser(auth.currentUser) ??
+        cotiz.members
+            .where((member) => member.status == 'active')
+            .firstOrNull
+            ?.id;
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _transactionController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final cotiz = Provider.of<CotizProvider>(context);
-    final auth = Provider.of<AuthProvider>(context);
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final organization = cotiz.currentOrg;
+    final activeContributions = cotiz.contributions
+        .where((contribution) => contribution.status == 'active')
+        .toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Régler une Cotisation', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: const Text('Déclarer un paiement', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
       ),
-      body: _isProcessing
+      body: organization == null
+          ? const Center(child: Text('Aucune organisation active.'))
+          : activeContributions.isEmpty
+              ? const Center(child: Text('Aucune cotisation active à régler.'))
+              : _isProcessing
           ? Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -44,11 +72,11 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                   const CircularProgressIndicator(color: AppColors.primary),
                   const SizedBox(height: 20),
                   Text(
-                    'Connexion sécurisée ${_method.toUpperCase()}...',
+                    'Enregistrement de votre déclaration...',
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
-                  const Text('Génération du reçu de versement horodaté', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                  const Text('Le paiement sera soumis à validation par un administrateur.', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
                 ],
               ),
             )
@@ -69,9 +97,11 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
-                        value: _selectedContributionId,
+                        value: activeContributions.any((item) => item.id == _selectedContributionId)
+                            ? _selectedContributionId
+                            : null,
                         isExpanded: true,
-                        items: cotiz.contributions.map((c) {
+                        items: activeContributions.map((c) {
                           return DropdownMenuItem(
                             value: c.id,
                             child: Text(c.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
@@ -85,6 +115,28 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                   ),
                   const SizedBox(height: 18),
 
+                  if (auth.currentUser?.isAdmin == true) ...[
+                    const Text('Membre concerné', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: cotiz.members.any((member) => member.id == _selectedMemberId)
+                          ? _selectedMemberId
+                          : null,
+                      items: cotiz.members
+                          .where((member) => member.status == 'active')
+                          .map((member) => DropdownMenuItem(
+                                value: member.id,
+                                child: Text(member.fullName),
+                              ))
+                          .toList(),
+                      onChanged: (id) => setState(() => _selectedMemberId = id),
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.person_outline_rounded),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                  ],
+
                   // Amount
                   const Text('Montant à verser (FCFA)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 8),
@@ -95,6 +147,17 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                     decoration: const InputDecoration(
                       prefixIcon: Icon(Icons.payments_outlined, color: AppColors.primary),
                       suffixText: 'FCFA',
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text('Référence de transaction (facultatif)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _transactionController,
+                    textCapitalization: TextCapitalization.characters,
+                    decoration: const InputDecoration(
+                      hintText: 'Référence Wave / Orange Money',
+                      prefixIcon: Icon(Icons.tag_rounded),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -111,7 +174,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             decoration: BoxDecoration(
-                              color: _method == 'wave' ? AppColors.waveBlue.withOpacity(0.08) : Colors.white,
+                              color: _method == 'wave' ? AppColors.waveBlue.withValues(alpha: 0.08) : Colors.white,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
                                 color: _method == 'wave' ? AppColors.waveBlue : AppColors.border,
@@ -142,7 +205,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             decoration: BoxDecoration(
-                              color: _method == 'orange_money' ? AppColors.orangeMoney.withOpacity(0.08) : Colors.white,
+                              color: _method == 'orange_money' ? AppColors.orangeMoney.withValues(alpha: 0.08) : Colors.white,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
                                 color: _method == 'orange_money' ? AppColors.orangeMoney : AppColors.border,
@@ -173,7 +236,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             decoration: BoxDecoration(
-                              color: _method == 'cash' ? AppColors.cashGreen.withOpacity(0.08) : Colors.white,
+                              color: _method == 'cash' ? AppColors.cashGreen.withValues(alpha: 0.08) : Colors.white,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
                                 color: _method == 'cash' ? AppColors.cashGreen : AppColors.border,
@@ -213,34 +276,68 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                       children: [
                         const Text('Numéro de collecte officiel :', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                         Text(
-                          _method == 'orange_money' ? cotiz.currentOrg.orangeMoneyNumber : cotiz.currentOrg.waveNumber,
+                          _method == 'orange_money' ? organization.orangeMoneyNumber : organization.waveNumber,
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.primaryDark),
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Cotiz enregistre la déclaration et la transmet pour validation. Le paiement mobile money doit être effectué dans l’application du fournisseur.',
+                    style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                  ),
                   const SizedBox(height: 32),
 
                   // Button
                   ElevatedButton(
-                    onPressed: () {
-                      final amount = double.tryParse(_amountController.text) ?? 5000;
+                    onPressed: () async {
+                      final amount = double.tryParse(_amountController.text);
+                      final memberId = _selectedMemberId;
+                      final contributionId = _selectedContributionId;
+                      final messenger = ScaffoldMessenger.maybeOf(context);
+                      final navigator = Navigator.of(context);
+                      if (amount == null || amount <= 0) {
+                        if (messenger == null) return;
+                        messenger.showSnackBar(
+                          const SnackBar(content: Text('Saisissez un montant valide.')),
+                        );
+                        return;
+                      }
+                      if (memberId == null || contributionId == null) {
+                        if (messenger == null) return;
+                        messenger.showSnackBar(
+                          const SnackBar(content: Text('Sélectionnez un membre et une cotisation.')),
+                        );
+                        return;
+                      }
                       setState(() => _isProcessing = true);
-
-                      Future.delayed(const Duration(milliseconds: 1400), () {
-                        cotiz.recordPayment(
-                          contributionId: _selectedContributionId,
-                          memberId: auth.currentUser?.id ?? 'mem-1',
-                          memberName: auth.currentUser?.fullName ?? 'Membre Cotiz',
+                      try {
+                        final cycle = cotiz.cycles
+                            .where((item) =>
+                                item['contribution_id']?.toString() ==
+                                    contributionId &&
+                                item['status'] == 'open')
+                            .firstOrNull;
+                        await cotiz.recordPayment(
+                          contributionId: contributionId,
+                          cycleId: cycle?['id']?.toString(),
+                          memberId: memberId,
                           amount: amount,
                           method: _method,
+                          transactionId: _transactionController.text.trim(),
                         );
-
-                        if (mounted) {
-                          setState(() => _isProcessing = false);
-                          _showSuccessReceipt(context, amount);
-                        }
-                      });
+                        if (!mounted) return;
+                        setState(() => _isProcessing = false);
+                        _showSuccessReceipt(navigator.context, amount);
+                      } on ApiException catch (error) {
+                        if (!mounted) return;
+                        setState(() => _isProcessing = false);
+                        if (messenger == null) return;
+                        messenger.showSnackBar(
+                          SnackBar(content: Text(error.message)),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _method == 'orange_money' ? AppColors.orangeMoney : AppColors.primary,
@@ -268,10 +365,10 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
               child: Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 40),
             ),
             const SizedBox(height: 16),
-            const Text('Paiement Enregistré !', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const Text('Déclaration envoyée', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             const SizedBox(height: 6),
             Text(
-              'Votre versement de ${CurrencyFormatter.formatFCFA(amount)} a été capturé.',
+              'Votre déclaration de ${CurrencyFormatter.formatFCFA(amount)} est en attente de validation par un administrateur.',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
             ),
