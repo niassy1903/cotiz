@@ -31,7 +31,7 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'email:rfc,dns', 'max:254', 'unique:users,email'],
             'phone' => ['required', 'string', 'max:20', 'regex:/^\+?[1-9]\d{7,15}$/'],
             'gender' => ['required', 'in:M,F'],
-            'password' => ['required', 'string', 'min:12', 'max:72', 'confirmed', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{12,72}$/'],
+            'password' => ['required', 'string', 'min:8', 'max:72', 'confirmed', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,72}$/'],
             'organization_name' => [Rule::requiredIf(! $request->filled('invite_token')), 'nullable', 'string', 'min:2', 'max:150'],
             'invite_token' => ['nullable', 'string', 'size:48'],
             'referral_code' => ['nullable', 'string', 'exists:referral_profiles,code'],
@@ -334,7 +334,7 @@ class AuthController extends Controller
         $data = $request->validate([
             'email' => ['required', 'string', 'email:rfc,dns', 'max:254'],
             'token' => ['required', 'string'],
-            'password' => ['required', 'string', 'min:12', 'max:72', 'confirmed', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{12,72}$/'],
+            'password' => ['required', 'string', 'min:8', 'max:72', 'confirmed', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,72}$/'],
         ]);
 
         $data['email'] = $this->normalizeEmail((string) $data['email']);

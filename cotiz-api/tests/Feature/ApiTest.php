@@ -33,8 +33,8 @@ class ApiTest extends TestCase
             'email' => 'aminata@example.test',
             'phone' => '+221770000000',
             'gender' => 'F',
-            'password' => 'StrongPass123!',
-            'password_confirmation' => 'StrongPass123!',
+            'password' => 'Aa1!bcde',
+            'password_confirmation' => 'Aa1!bcde',
             'organization_name' => 'Association Test',
         ]);
 
@@ -44,6 +44,20 @@ class ApiTest extends TestCase
         $this->assertNotEmpty($response->json('data.user.current_org_id'));
         $this->assertDatabaseHas('organizations', ['name' => 'Association Test']);
         $this->assertDatabaseHas('organization_members', ['role' => 'admin', 'status' => 'active']);
+    }
+
+    public function test_registration_rejects_passwords_shorter_than_eight_characters(): void
+    {
+        $this->postJson('/api/v1/auth/register', [
+            'first_name' => 'Aminata',
+            'last_name' => 'Fall',
+            'email' => 'aminata@example.test',
+            'phone' => '+221770000000',
+            'gender' => 'F',
+            'password' => 'Aa1!xyz',
+            'password_confirmation' => 'Aa1!xyz',
+            'organization_name' => 'Association Test',
+        ])->assertUnprocessable()->assertJsonValidationErrors(['password']);
     }
 
     public function test_registration_rejects_duplicate_email_and_phone(): void

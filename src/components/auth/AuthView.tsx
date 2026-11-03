@@ -116,12 +116,34 @@ export const AuthView: React.FC = () => {
 
   const signupError = (field: string) => signupErrors[field];
   const passwordRequirements: Array<[string, boolean]> = [
-    [t('12 à 72 caractères'), password.length >= 12 && password.length <= 72],
+    [t('Au moins 8 caractères'), password.length >= 8 && password.length <= 72],
     [t('Une lettre minuscule'), /[a-z]/.test(password)],
     [t('Une lettre majuscule'), /[A-Z]/.test(password)],
     [t('Un chiffre'), /\d/.test(password)],
     [t('Un symbole'), /[^A-Za-z\d]/.test(password)],
   ];
+  const passwordStrengthScore = password
+    ? Number(password.length >= 8 && password.length <= 72) +
+      Number(/[a-z]/.test(password)) +
+      Number(/[A-Z]/.test(password)) +
+      Number(/\d/.test(password)) +
+      Number(/[^A-Za-z\d]/.test(password)) +
+      Number(password.length >= 12) +
+      Number(password.length >= 16)
+    : 0;
+  const passwordStrength = passwordStrengthScore < 2
+    ? { label: t('Très faible'), color: 'bg-rose-500', textColor: 'text-rose-600' }
+    : passwordStrengthScore < 3
+    ? { label: t('Faible'), color: 'bg-orange-500', textColor: 'text-orange-600' }
+    : passwordStrengthScore < 4
+    ? { label: t('Médiocre'), color: 'bg-amber-500', textColor: 'text-amber-600' }
+    : passwordStrengthScore < 5
+    ? { label: t('Moyen'), color: 'bg-yellow-500', textColor: 'text-yellow-700' }
+    : passwordStrengthScore < 6
+    ? { label: t('Bon'), color: 'bg-lime-500', textColor: 'text-lime-700' }
+    : passwordStrengthScore < 7
+    ? { label: t('Fort'), color: 'bg-emerald-500', textColor: 'text-emerald-700' }
+    : { label: t('Très fort'), color: 'bg-emerald-700', textColor: 'text-emerald-800' };
 
   useEffect(() => {
     if (mode !== 'otp') return;
@@ -246,7 +268,7 @@ export const AuthView: React.FC = () => {
       errors.organizationName = t('Le nom de l’organisation doit contenir au moins 2 caractères.');
     }
     if (
-      password.length < 12 ||
+      password.length < 8 ||
       password.length > 72 ||
       !/[a-z]/.test(password) ||
       !/[A-Z]/.test(password) ||
@@ -287,6 +309,8 @@ export const AuthView: React.FC = () => {
           phone: 'phone',
           organization_name: 'organizationName',
           invite_token: 'organizationName',
+          referral_code: 'referralCode',
+          gender: 'gender',
           password: 'password',
           password_confirmation: 'passwordConfirmation',
         };
@@ -298,7 +322,7 @@ export const AuthView: React.FC = () => {
               return [
                 name,
                 field === 'password'
-                  ? t('Le mot de passe doit contenir au moins 12 caractères.')
+                  ? t('Le mot de passe doit contenir au moins 8 caractères.')
                   : field === 'organization_name'
                   ? t('Le nom de l’organisation doit contenir au moins 2 caractères.')
                   : t('Cette valeur est trop courte.'),
@@ -308,13 +332,21 @@ export const AuthView: React.FC = () => {
               return [name, t('Ce champ est obligatoire.')];
             }
             if (message.startsWith('validation.confirmed')) {
-              return [name, t('La confirmation ne correspond pas au mot de passe.')];
+              return [
+                field === 'password' ? 'passwordConfirmation' : name,
+                t('La confirmation ne correspond pas au mot de passe.'),
+              ];
             }
             if (message.startsWith('validation.email')) {
               return [name, t('Saisissez une adresse e-mail valide.')];
             }
             if (message.startsWith('validation.regex')) {
-              return [name, t('Le format saisi est invalide.')];
+              return [
+                name,
+                field === 'password'
+                  ? t('Ajoutez une majuscule, une minuscule, un chiffre et un symbole.')
+                  : t('Le format saisi est invalide.'),
+              ];
             }
             if (message.startsWith('validation.unique')) {
               return [
@@ -758,7 +790,7 @@ export const AuthView: React.FC = () => {
 
           {/* SIGN UP FORM */}
           {mode === 'signup' && (
-            <form onSubmit={handleSignUp} className="space-y-3">
+            <form onSubmit={handleSignUp} className="space-y-3" noValidate>
               <div className="grid grid-cols-2 gap-2">
                 <Input
                   label={t('Prénom')}
@@ -831,43 +863,79 @@ export const AuthView: React.FC = () => {
                 <Input
                   label={t('Code de parrainage (facultatif)')}
                   value={enteredReferralCode}
-                  onChange={e => setEnteredReferralCode(e.target.value.toUpperCase())}
+                  onChange={e => {
+                    setEnteredReferralCode(e.target.value.toUpperCase());
+                    clearSignupError('referralCode');
+                  }}
+                  error={signupError('referralCode')}
                 />
               )}
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-3">
                 <Select
                   label={t('Sexe')}
                   value={gender}
-                  onChange={e => setGender(e.target.value as Gender)}
+                onChange={e => {
+                  setGender(e.target.value as Gender);
+                  clearSignupError('gender');
+                }}
+                error={signupError('gender')}
                   options={[
                     { value: 'M', label: t('Homme') },
                     { value: 'F', label: t('Femme') },
                   ]}
                 />
-                <Input
-                  label={t('Mot de passe')}
-                  type="password"
-                  minLength={12}
-                  maxLength={72}
-                  autoComplete="new-password"
-                  placeholder={t('12 à 72 caractères : majuscule, minuscule, chiffre, symbole')}
-                  value={password}
-                  onChange={e => {
-                    setPassword(e.target.value);
-                    clearSignupError('password');
-                    if (passwordConfirmation) clearSignupError('passwordConfirmation');
-                  }}
-                  error={signupError('password')}
-                  helperText={t('Requis : 12 à 72 caractères, une majuscule, une minuscule, un chiffre et un symbole.')}
-                  required
-                />
+                <div className="space-y-2">
+                  <Input
+                    label={t('Mot de passe')}
+                    type="password"
+                    minLength={8}
+                    maxLength={72}
+                    autoComplete="new-password"
+                    placeholder={t('Au moins 8 caractères')}
+                    value={password}
+                    onChange={e => {
+                      setPassword(e.target.value);
+                      clearSignupError('password');
+                      if (passwordConfirmation) clearSignupError('passwordConfirmation');
+                    }}
+                    error={signupError('password')}
+                    helperText={t('8 caractères minimum, avec une majuscule, une minuscule, un chiffre et un symbole.')}
+                    required
+                  />
+                  <div
+                    role="meter"
+                    aria-label={t('Robustesse du mot de passe')}
+                    aria-valuemin={0}
+                    aria-valuemax={7}
+                    aria-valuenow={passwordStrengthScore}
+                    className="rounded-lg border border-slate-100 bg-slate-50 p-3 space-y-2"
+                  >
+                    <div className="flex gap-1" aria-hidden="true">
+                      {Array.from({ length: 7 }, (_, index) => (
+                        <span
+                          key={index}
+                          className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
+                            password && index < passwordStrengthScore
+                              ? passwordStrength.color
+                              : 'bg-slate-200'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className={`text-[11px] font-semibold ${password ? passwordStrength.textColor : 'text-slate-500'}`}>
+                      {password
+                        ? `${t('Robustesse')} : ${passwordStrength.label}`
+                        : t('La robustesse s’affichera pendant la saisie.')}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <Input
                 label={t('Confirmer le mot de passe')}
                 type="password"
-                minLength={12}
+                minLength={8}
                 maxLength={72}
                 autoComplete="new-password"
                 placeholder={t('Saisissez à nouveau le même mot de passe')}
@@ -876,7 +944,12 @@ export const AuthView: React.FC = () => {
                   setPasswordConfirmation(e.target.value);
                   clearSignupError('passwordConfirmation');
                 }}
-                error={signupError('passwordConfirmation')}
+                error={
+                  signupError('passwordConfirmation') ||
+                  (passwordConfirmation && passwordConfirmation !== password
+                    ? t('La confirmation ne correspond pas au mot de passe.')
+                    : undefined)
+                }
                 required
               />
 
