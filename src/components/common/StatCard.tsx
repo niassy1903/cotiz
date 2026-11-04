@@ -11,6 +11,7 @@ interface StatCardProps {
     isPositive?: boolean;
   };
   onClick?: () => void;
+  accent?: 'green' | 'orange' | 'rose' | 'amber' | 'blue';
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -20,13 +21,15 @@ export const StatCard: React.FC<StatCardProps> = ({
   icon,
   trend,
   onClick,
+  accent = 'green',
 }) => {
   const { t } = usePreferences();
 
   return (
     <div
       onClick={onClick}
-      className={`p-5 bg-white rounded-xl border border-slate-200/80 shadow-xs transition-all ${
+      data-accent={accent}
+      className={`stat-card p-5 bg-white rounded-xl border border-slate-200/80 shadow-xs transition-all ${
         onClick ? 'cursor-pointer hover:border-slate-300 hover:shadow-sm' : ''
       }`}
     >

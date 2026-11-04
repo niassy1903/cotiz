@@ -75,7 +75,7 @@ export const RevenueExpenseChart: React.FC<RevenueExpenseChartProps> = ({
   const hasFinancialData = activeData.some(d => d.revenue > 0 || d.expense > 0);
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-xs">
+    <div className="dashboard-panel dashboard-chart-card bg-white rounded-xl border border-slate-200/80 p-5 shadow-xs">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <h3 className="text-sm font-semibold text-slate-900">
@@ -119,7 +119,7 @@ export const RevenueExpenseChart: React.FC<RevenueExpenseChartProps> = ({
         </div>
       </div>
 
-      <div className="h-48 flex items-end gap-3 sm:gap-6 pt-4 border-b border-slate-100 pb-2 relative">
+      <div className="dashboard-chart-plot h-48 flex items-end gap-3 sm:gap-6 pt-4 border-b border-slate-100 pb-2 relative">
         {!hasFinancialData && (
           <p className="absolute inset-0 flex items-center justify-center text-xs text-slate-400">
             Aucune activité financière sur cette période.
@@ -134,12 +134,12 @@ export const RevenueExpenseChart: React.FC<RevenueExpenseChartProps> = ({
               <div className="w-full flex items-end justify-center gap-1 sm:gap-2 h-full">
                 <div
                   style={{ height: `${revenueHeight}%` }}
-                  className="w-1/2 max-w-[28px] bg-emerald-700 hover:bg-emerald-800 rounded-t-sm transition-all relative cursor-pointer"
+                  className="dashboard-chart-bar dashboard-chart-revenue w-1/2 max-w-[28px] bg-emerald-700 hover:bg-emerald-800 rounded-t-sm transition-all relative cursor-pointer"
                   title={`Collecte: ${formatFCFA(data.revenue)}`}
                 />
                 <div
                   style={{ height: `${expenseHeight}%` }}
-                  className="w-1/2 max-w-[28px] bg-rose-400 hover:bg-rose-500 rounded-t-sm transition-all relative cursor-pointer"
+                  className="dashboard-chart-bar dashboard-chart-expense w-1/2 max-w-[28px] bg-rose-400 hover:bg-rose-500 rounded-t-sm transition-all relative cursor-pointer"
                   title={`Dépense: ${formatFCFA(data.expense)}`}
                 />
               </div>
