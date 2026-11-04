@@ -425,8 +425,58 @@ export const AuthView: React.FC = () => {
 
   return (
     <div className="auth-shell min-h-screen w-full flex flex-col lg:flex-row font-sans text-slate-900 selection:bg-emerald-500 selection:text-white">
+      <style>{`
+        .auth-orbit-art{position:absolute;top:20%;right:9%;width:min(31vw,390px);aspect-ratio:1;z-index:2;pointer-events:none;perspective:900px;animation:auth-art-enter 900ms cubic-bezier(.2,.8,.2,1) both}
+        .auth-orbit{position:absolute;inset:12%;border:1px solid rgb(209 250 229 / 32%);border-radius:32%;transform:rotateX(62deg) rotateZ(-28deg);box-shadow:0 0 45px rgb(52 211 153 / 12%),inset 0 0 35px rgb(52 211 153 / 8%)}
+        .auth-orbit-two{inset:2%;border-color:rgb(253 186 116 / 35%);transform:rotateX(62deg) rotateZ(32deg);animation:auth-orbit-spin 24s linear infinite}
+        .auth-orbit-core{position:absolute;inset:30%;display:grid;place-items:center;border:1px solid rgb(255 255 255 / 35%);border-radius:32%;color:#fff7d6;background:linear-gradient(145deg,rgb(52 211 153 / 62%),rgb(4 75 54 / 82%));box-shadow:0 30px 80px rgb(1 25 17 / 42%),inset 0 1px rgb(255 255 255 / 35%);transform:rotateX(12deg) rotateY(-16deg) rotateZ(-8deg);animation:auth-core-float 5s ease-in-out infinite}
+        .auth-orbit-core svg{width:38%;height:38%;stroke-width:1.3}
+        .auth-float-card{position:absolute;display:flex;align-items:center;gap:.65rem;padding:.8rem 1rem;color:white;font-size:.68rem;line-height:1.35;border:1px solid rgb(255 255 255 / 24%);border-radius:1rem;background:rgb(8 42 32 / 52%);box-shadow:0 16px 45px rgb(0 0 0 / 18%);backdrop-filter:blur(14px)}
+        .auth-float-card svg{width:1.2rem;color:#a7f3d0}.auth-float-card strong{color:#fde68a;font-weight:700}
+        .auth-float-card-top{top:8%;right:-1%;animation:auth-card-float 6s ease-in-out infinite}.auth-float-card-bottom{bottom:11%;left:-9%;animation:auth-card-float 7s ease-in-out infinite reverse}
+        .auth-float-dot{width:.5rem;height:.5rem;border-radius:50%;background:#4ade80;box-shadow:0 0 12px #4ade80}
+        .auth-mode-content{animation:auth-content-enter 380ms cubic-bezier(.2,.75,.25,1) both}.auth-card form{animation:auth-content-enter 420ms cubic-bezier(.2,.75,.25,1) both}
+        .auth-card{box-shadow:0 34px 90px -38px rgb(15 76 55 / 30%),0 2px 8px rgb(15 76 55 / 4%);animation:auth-card-enter 650ms cubic-bezier(.2,.8,.2,1) both}
+        .auth-form-side{position:relative;overflow:hidden;isolation:isolate}
+        .auth-form-side:before,.auth-form-side:after{position:absolute;z-index:-1;content:"";pointer-events:none;border-radius:50%;filter:blur(1px)}
+        .auth-form-side:before{width:22rem;height:22rem;top:-8rem;right:-8rem;background:radial-gradient(circle,rgb(16 185 129 / 13%),transparent 68%);animation:auth-glow-drift 12s ease-in-out infinite alternate}
+        .auth-form-side:after{width:18rem;height:18rem;bottom:-8rem;left:-7rem;background:radial-gradient(circle,rgb(251 146 60 / 10%),transparent 70%);animation:auth-glow-drift 15s ease-in-out infinite alternate-reverse}
+        .auth-card{position:relative;z-index:1;overflow:hidden;border-color:rgb(255 255 255 / 88%);background:rgb(255 255 255 / 88%);backdrop-filter:blur(24px);transform-style:preserve-3d}
+        .auth-card:before{position:absolute;top:0;left:12%;right:12%;height:1px;content:"";background:linear-gradient(90deg,transparent,rgb(16 185 129 / 55%),transparent)}
+        .auth-card input:not([type="checkbox"]){min-height:3.4rem;border-radius:.9rem;transition:border-color 180ms ease,box-shadow 180ms ease,background-color 180ms ease,transform 180ms ease}
+        .auth-card input:not([type="checkbox"]):focus{transform:translateY(-1px);box-shadow:0 0 0 4px rgb(16 185 129 / 10%),0 8px 22px -16px rgb(5 95 70 / 50%)}
+        .auth-card label{font-weight:600;letter-spacing:.005em}
+        .auth-mode-tabs{box-shadow:inset 0 1px rgb(255 255 255 / 80%)}
+        .auth-mode-tabs .auth-tab-active{background:linear-gradient(180deg,#fff,#f7faf7);box-shadow:0 4px 12px rgb(15 76 55 / 9%),inset 0 1px #fff}
+        .auth-submit{position:relative;overflow:hidden}
+        .auth-submit:before{position:absolute;inset:0;content:"";transform:translateX(-120%);background:linear-gradient(105deg,transparent 25%,rgb(255 255 255 / 22%) 50%,transparent 75%);transition:transform 650ms ease}
+        .auth-submit:hover:before{transform:translateX(120%)}
+        .auth-field-decoration{position:absolute;z-index:0;pointer-events:none;opacity:.78;filter:drop-shadow(0 18px 24px rgb(6 95 70 / 12%));animation:auth-deco-float 8s ease-in-out infinite}
+        .auth-field-decoration svg{stroke-width:1.15}
+        .auth-field-decoration-one{top:15%;right:7%;color:#10b981;transform:rotate(12deg)}
+        .auth-field-decoration-two{bottom:14%;right:5%;color:#f59e0b;animation-delay:-3s;transform:rotate(-10deg)}
+        .auth-card-content{position:relative;z-index:1}
+        @keyframes auth-art-enter{from{opacity:0;transform:translate3d(25px,18px,0) scale(.92)}to{opacity:1;transform:translate3d(0,0,0) scale(1)}}
+        @keyframes auth-content-enter{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes auth-card-enter{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+        @keyframes auth-core-float{0%,100%{transform:translate3d(0,0,0) rotateX(12deg) rotateY(-16deg) rotateZ(-8deg)}50%{transform:translate3d(0,-12px,8px) rotateX(17deg) rotateY(-8deg) rotateZ(-3deg)}}
+        @keyframes auth-card-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+        @keyframes auth-orbit-spin{to{transform:rotateX(62deg) rotateZ(392deg)}}
+        @keyframes auth-deco-float{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 -12px;rotate:4deg}}
+        @keyframes auth-glow-drift{from{transform:translate3d(-10px,0,0) scale(.94)}to{transform:translate3d(15px,20px,0) scale(1.08)}}
+        @media (min-width:1024px) and (max-height:780px){.auth-orbit-art{top:16%;width:min(26vw,310px)}}
+        @media (max-width:1023px){.auth-field-decoration{opacity:.38}.auth-field-decoration-one{top:5%;right:3%}.auth-field-decoration-two{bottom:5%;right:2%}}
+        @media (prefers-reduced-motion:reduce){.auth-orbit-art,.auth-orbit-two,.auth-orbit-core,.auth-float-card,.auth-card,.auth-mode-content,.auth-card form,.auth-field-decoration,.auth-form-side:before,.auth-form-side:after{animation:none!important}.auth-submit:before{display:none}}
+      `}</style>
       {/* LEFT COLUMN: Dynamic Splash Story Showcase (Desktop 50%, hidden or banner on mobile) */}
       <div className="auth-showcase relative w-full lg:w-1/2 min-h-[380px] lg:min-h-screen overflow-hidden flex flex-col justify-between p-6 sm:p-10 lg:p-14 select-none">
+        <div className="auth-orbit-art" aria-hidden="true">
+          <div className="auth-orbit auth-orbit-one" />
+          <div className="auth-orbit auth-orbit-two" />
+          <div className="auth-orbit-core"><Sparkles /></div>
+          <div className="auth-float-card auth-float-card-top"><ShieldCheck /><span>Transactions<br /><strong>transparentes</strong></span></div>
+          <div className="auth-float-card auth-float-card-bottom"><span className="auth-float-dot" />Communauté active <strong>+2 400</strong></div>
+        </div>
         {/* Background Images Carousel */}
         {splashSlides.map((slide, idx) => (
           <div
@@ -543,6 +593,12 @@ export const AuthView: React.FC = () => {
 
       {/* RIGHT COLUMN: Auth Form (Desktop 50%, full on mobile) */}
       <div className="auth-form-side w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 lg:p-12 min-h-screen">
+        <div className="auth-field-decoration auth-field-decoration-one" aria-hidden="true">
+          <svg width="116" height="116" viewBox="0 0 116 116" fill="none"><path d="M58 5 70 39l34 12-34 12-12 34-12-34L12 51l34-12L58 5Z" fill="currentColor" fillOpacity=".1" stroke="currentColor" strokeWidth="2"/><circle cx="58" cy="51" r="9" fill="currentColor" fillOpacity=".2"/><path d="m91 9 4 11 11 4-11 4-4 11-4-11-11-4 11-4 4-11Z" fill="#f59e0b" fillOpacity=".6"/></svg>
+        </div>
+        <div className="auth-field-decoration auth-field-decoration-two" aria-hidden="true">
+          <svg width="104" height="104" viewBox="0 0 104 104" fill="none"><path d="M52 8c9 17 17 25 34 34-17 9-25 17-34 34C43 59 35 51 18 42 35 33 43 25 52 8Z" fill="currentColor" fillOpacity=".13" stroke="currentColor" strokeWidth="2"/><circle cx="52" cy="42" r="7" fill="currentColor" fillOpacity=".25"/><circle cx="84" cy="79" r="8" stroke="#f59e0b" strokeWidth="2"/><path d="M84 75v8m-4-4h8" stroke="#f59e0b" strokeWidth="1.5"/></svg>
+        </div>
         <div className="auth-card w-full max-w-md rounded-2xl border p-6 sm:p-8 space-y-6">
           <div className="flex justify-end">
             <label className="flex items-center gap-2 text-xs text-slate-500">
@@ -561,7 +617,7 @@ export const AuthView: React.FC = () => {
             </label>
           </div>
           {/* Header Title & Switch */}
-          <div>
+          <div key={mode} className="auth-mode-content">
             <div className="flex items-center justify-between mb-1">
               <h1 className="auth-title text-2xl font-bold tracking-tight">
                 {mode === 'signin'
