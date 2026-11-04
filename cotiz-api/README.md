@@ -34,7 +34,7 @@ API REST JSON construite avec Laravel 13, Sanctum et MongoDB Atlas.
 
 Chaque connexion par mot de passe demande ensuite un code à 6 chiffres envoyé par courriel. Le code est à usage unique, expire après 15 minutes et est limité à cinq tentatives. Le renvoi invalide le code précédent.
 
-Le déploiement Render utilise Resend via son API HTTPS, car les ports SMTP sortants sont bloqués sur les services gratuits. Créez une clé API Resend et vérifiez un domaine d'envoi que vous possédez. Configurez ensuite `RESEND_API_KEY` et `MAIL_FROM_ADDRESS` avec une adresse de ce domaine (par exemple `connexion@votre-domaine.tld`) dans les variables d'environnement Render. N'utilisez pas une adresse Gmail comme expéditeur Resend sans avoir vérifié son domaine.
+Le déploiement Render utilise Resend via son API HTTPS, car les ports SMTP sortants sont bloqués sur les services gratuits. Les comptes Resend non configurés ne peuvent envoyer des e-mails qu'à l'adresse du propriétaire du compte. Pour envoyer des codes de connexion et des liens de mot de passe aux membres, vérifiez un domaine que vous possédez dans [Resend Domains](https://resend.com/domains), puis configurez `RESEND_API_KEY` et `MAIL_FROM_ADDRESS` avec une adresse de ce domaine (par exemple `connexion@votre-domaine.tld`) dans les variables d'environnement Render. Une adresse Gmail ne peut pas servir d'expéditeur sans vérification de son domaine.
 
 ```dotenv
 MAIL_MAILER=resend
@@ -43,7 +43,7 @@ MAIL_FROM_ADDRESS=connexion@votre-domaine.tld
 MAIL_FROM_NAME="${APP_NAME}"
 ```
 
-Le code source et `.env.example` ne contiennent aucun secret. Pour le développement local, vous pouvez définir une clé Resend dans le `.env` ignoré par Git ou conserver `MAIL_MAILER=log` pour écrire les messages dans les logs sans les envoyer.
+Le code source et `.env.example` ne contiennent aucun secret. En local, `MAIL_MAILER=log` écrit les messages dans les logs sans les envoyer. Après avoir vérifié le domaine, redéployez ou videz le cache de configuration Laravel pour prendre en compte la nouvelle adresse expéditeur.
 
 Le projet utilise `mongodb/mongodb:^1.20` avec `mongodb/laravel-mongodb:^5.12`; Composer résout actuellement la bibliothèque en 1.21.5. L'image Render utilise PHP 8.4, également requis par les versions Symfony enregistrées dans `composer.lock`. Vérifiez que l'extension native MongoDB 1.21.x est chargée par le même PHP CLI utilisé pour Composer et Artisan :
 
@@ -795,15 +795,17 @@ Permet à l'utilisateur authentifié de demander à rejoindre une organisation.
 - `first_name` (string, max:100)
 - `last_name` (string, max:100)
 - `phone` (string, max:40)
+- `email` (email, max:254) pour un membre actif
 - `gender` (enum: M, F)
 - `role` (enum: admin, member)
 - `is_ghost` (boolean)
 
 **Champs optionnels :**
-- `email` (email, max:255)
+- `email` pour un membre fantôme
 
 **Réponse (201 Created) :**
 Voir la structure de réponse de `/members` ci-dessus.
+Un membre actif créé sans compte Cotiz reçoit automatiquement un compte lié à sa fiche et un lien de réinitialisation pour choisir son mot de passe avant sa première connexion. Si l'envoi échoue, la réponse inclut `access_link_sent: false` et un message explicite; l'utilisateur peut aussi demander un lien depuis « Mot de passe oublié ».
 
 **Rôles autorisés :** Admin de l'organisation
 

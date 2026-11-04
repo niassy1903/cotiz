@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
@@ -26,6 +26,11 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose 
   const [gender, setGender] = useState<Gender>('M');
   const [role, setRole] = useState<MemberRole>('member');
   const [isSaving, setIsSaving] = useState(false);
+  const [accessLinkMessage, setAccessLinkMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) setAccessLinkMessage(null);
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,12 +49,17 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose 
     setIsSaving(false);
     if (!created) return;
 
-    onClose();
     // Reset
     setFirstName('');
     setLastName('');
     setPhone('');
     setEmail('');
+    if (created.accessLinkSent === false) {
+      setAccessLinkMessage(created.accessLinkMessage || 'Le compte est créé, mais le lien d’activation n’a pas pu être envoyé.');
+      return;
+    }
+
+    onClose();
   };
 
   return (
@@ -98,7 +108,16 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose 
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+        {accessLinkMessage ? (
+          <div className="space-y-4">
+            <p role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+              {accessLinkMessage}
+            </p>
+            <div className="flex justify-end">
+              <Button type="button" onClick={onClose}>Fermer</Button>
+            </div>
+          </div>
+        ) : <form onSubmit={handleSubmit} className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
             <Input
               label="Prénom"
@@ -128,11 +147,13 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose 
 
           {tab === 'active' && (
             <Input
-              label="Email (optionnel)"
+              label="Adresse e-mail du membre"
               type="email"
               placeholder="moussa@exemple.sn"
               value={email}
               onChange={e => setEmail(e.target.value)}
+              helperText="Un compte Cotiz sera lié (ou créé) pour son suivi personnel. S’il est nouveau, un lien sécurisé lui permettra de choisir son mot de passe."
+              required
             />
           )}
 
@@ -165,7 +186,7 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({ isOpen, onClose 
               {tab === 'ghost' ? 'Ajouter le membre fantôme' : 'Ajouter le membre'}
             </Button>
           </div>
-        </form>
+        </form>}
       </div>
     </Modal>
   );

@@ -12,7 +12,6 @@ import {
   CreditCard,
   AlertTriangle,
   Receipt,
-  ShieldAlert,
   ArrowRight,
 } from 'lucide-react';
 import { formatFCFA, formatDate } from '../../utils/formatters';
@@ -28,42 +27,70 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
   onNavigateTab,
 }) => {
   const { user } = useAuth();
-  const { t } = usePreferences();
+  const { language, t } = usePreferences();
   const {
     currentOrg,
     orgMembers,
     orgContributions,
+    orgCycles,
     orgPayments,
-    orgExpenses,
   } = useData();
 
   // Find this user's member record in current organization
   const currentMember =
-    orgMembers.find(m => m.userId === user?.id || m.email === user?.email) || orgMembers[1] || orgMembers[0];
+    orgMembers.find(m => m.userId === user?.id || m.email?.toLowerCase() === user?.email.toLowerCase());
 
   // Payments made by this member
-  const myPayments = orgPayments.filter(
-    p => p.memberId === currentMember?.id || p.memberName.includes(user?.firstName || 'Fatou')
-  );
+  const myPayments = currentMember
+    ? orgPayments.filter(p => p.memberId === currentMember.id)
+    : [];
   const myValidatedPayments = myPayments.filter(p => p.status === 'validated');
 
   // Lifetime paid
   const totalLifetimePaid = myValidatedPayments.reduce((acc, p) => acc + p.amount, 0);
 
   // Paid this month
-  const currentMonth = '2026-11';
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const locale = { fr: 'fr-FR', en: 'en-US', wo: 'wo-SN', es: 'es-ES', pt: 'pt-PT' }[language];
+  const currentMonthLabel = now.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
   const paidThisMonth = myValidatedPayments
     .filter(p => p.paymentDate.startsWith(currentMonth))
     .reduce((acc, p) => acc + p.amount, 0);
 
   // Contributions due
-  const dueContributions = orgContributions;
-  const totalDueAmount = dueContributions.reduce((acc, c) => acc + c.amount, 0) - paidThisMonth;
-  const isUpToDate = totalDueAmount <= 0;
+  const dueContributions = currentMember
+    ? orgContributions.filter(contribution =>
+      contribution.status === 'active' &&
+      (contribution.targetType !== 'custom' || contribution.targetMemberIds?.includes(currentMember.id))
+    )
+    : [];
+  const unpaidContributions = dueContributions.filter(contribution =>
+    !myValidatedPayments.some(payment =>
+      payment.contributionId === contribution.id && payment.paymentDate.startsWith(currentMonth)
+    )
+  );
+  const totalDueAmount = unpaidContributions.reduce((acc, contribution) => acc + contribution.amount, 0);
+  const isUpToDate = unpaidContributions.length === 0;
 
-  // Next due date
-  const nextDueDate = '05 Novembre 2026';
-  const nextDueAmount = dueContributions[0]?.amount || 5000;
+  const upcomingCycles = orgCycles
+    .filter(cycle => {
+      const contribution = dueContributions.find(item => item.id === cycle.contributionId);
+      return cycle.status === 'open' &&
+        contribution &&
+        cycle.dueDate >= now.toISOString().slice(0, 10) &&
+        !myValidatedPayments.some(payment => payment.cycleId === cycle.id);
+    })
+    .sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+  const nextDueCycle = upcomingCycles[0];
+  const nextDueDate = nextDueCycle
+    ? new Date(`${nextDueCycle.dueDate}T00:00:00`).toLocaleDateString(locale, {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    })
+    : null;
+  const nextDueAmount = nextDueCycle?.expectedAmount ?? 0;
 
   // Check if member has delegated access to organization transactions
   const hasTransactionAccess = currentMember?.hasTransactionAccess ?? false;
@@ -75,15 +102,17 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
         eyebrow={t('Votre espace membre')}
         title={`${t('Bonjour')}, ${user?.firstName || currentMember?.firstName} !`}
         description={`${currentOrg.name} (${currentOrg.type}) · ${t('Devise FCFA')}`}
-        detail={`${t('Prochaine échéance')} : ${nextDueDate} · ${formatFCFA(nextDueAmount)}`}
-        action={<Button size="md" variant="secondary" onClick={() => onOpenMakePayment()} leftIcon={<CreditCard className="w-4 h-4" />}>{t('Payer une cotisation')}</Button>}
+        detail={nextDueDate
+          ? `${t('Prochaine échéance')} : ${nextDueDate} · ${formatFCFA(nextDueAmount)}`
+          : t('Aucune échéance à venir')}
+        action={<Button size="md" variant="secondary" onClick={() => onOpenMakePayment(nextDueCycle?.contributionId)} disabled={!nextDueCycle} leftIcon={<CreditCard className="w-4 h-4" />}>{t('Payer une cotisation')}</Button>}
       />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label={t('Cotisations Dues')}
-          value={isUpToDate ? '0' : '1'}
+          value={String(unpaidContributions.length)}
           subValue={isUpToDate ? t('Toutes vos cotisations sont à jour') : t('Échéance en cours')}
           icon={<Clock className="w-4 h-4 text-amber-600" />}
           accent="amber"
@@ -98,7 +127,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
         <StatCard
           label={t('Paiements ce mois')}
           value={formatFCFA(paidThisMonth)}
-          subValue={t('Novembre 2026')}
+          subValue={currentMonthLabel}
           icon={<CheckCircle2 className="w-4 h-4 text-emerald-700" />}
           accent="green"
         />
@@ -118,17 +147,21 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
             {t('Prochaine échéance')}
           </span>
           <h3 className="text-lg font-bold">
-            {t('Cotisation Mensuelle')} · {formatFCFA(nextDueAmount)}
+            {nextDueCycle?.contributionTitle ?? t('Aucune cotisation à venir')}
+            {nextDueCycle && ` · ${formatFCFA(nextDueAmount)}`}
           </h3>
           <p className="text-xs text-slate-300 mt-0.5">
-            {t('Date limite')} : <span className="font-semibold text-white">{nextDueDate}</span> ({t('dans 3 jours')})
+            {nextDueDate
+              ? <>{t('Date limite')} : <span className="font-semibold text-white">{nextDueDate}</span></>
+              : t('Aucune échéance à venir')}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Button
             size="sm"
             variant="secondary"
-            onClick={() => onOpenMakePayment(dueContributions[0]?.id)}
+            onClick={() => onOpenMakePayment(nextDueCycle?.contributionId)}
+            disabled={!nextDueCycle}
           >
             {t('Régler via Wave ou Orange Money')}
           </Button>
@@ -149,10 +182,10 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
           </div>
 
           <div className="space-y-3">
-            {orgContributions.map(c => {
+            {dueContributions.map(c => {
               // Find if paid for this contribution
               const hasPaid = myPayments.some(
-                p => p.contributionId === c.id && p.status === 'validated'
+                p => p.contributionId === c.id && p.status === 'validated' && p.paymentDate.startsWith(currentMonth)
               );
               return (
                 <div

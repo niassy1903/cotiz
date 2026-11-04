@@ -237,6 +237,77 @@ class ApiTest extends TestCase
             ->assertJsonPath('data.members.0.email', $member->email);
     }
 
+    public function test_admin_created_active_member_gets_a_login_account_and_password_setup_link(): void
+    {
+        Notification::fake();
+        Mail::fake();
+        [$organization, $admin] = $this->organizationWithAdmin();
+        Sanctum::actingAs($admin);
+
+        $this->postJson("/api/v1/organizations/{$organization->id}/members", [
+            'first_name' => 'Moussa',
+            'last_name' => 'Diop',
+            'phone' => '+221770000002',
+            'email' => 'moussa@example.test',
+            'gender' => 'M',
+            'role' => 'member',
+            'is_ghost' => false,
+        ])->assertCreated()
+            ->assertJsonPath('data.email', 'moussa@example.test')
+            ->assertJsonPath('data.access_link_sent', true);
+
+        $user = User::where('email', 'moussa@example.test')->firstOrFail();
+        $member = $organization->members()->where('user_id', $user->id)->firstOrFail();
+        $this->assertSame((string) $user->id, (string) $member->user_id);
+
+        $token = null;
+        Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use (&$token): bool {
+            $token = $notification->token;
+
+            return true;
+        });
+
+        $this->postJson('/api/v1/auth/reset-password', [
+            'email' => $user->email,
+            'token' => $token,
+            'password' => 'MemberPass123!',
+            'password_confirmation' => 'MemberPass123!',
+        ])->assertOk();
+
+        $this->postJson('/api/v1/auth/login', [
+            'email' => $user->email,
+            'password' => 'MemberPass123!',
+        ])->assertAccepted();
+    }
+
+    public function test_active_member_requires_an_email_address_for_account_creation(): void
+    {
+        [$organization, $admin] = $this->organizationWithAdmin();
+        Sanctum::actingAs($admin);
+
+        $this->postJson("/api/v1/organizations/{$organization->id}/members", [
+            'first_name' => 'Moussa',
+            'last_name' => 'Diop',
+            'phone' => '+221770000002',
+            'gender' => 'M',
+            'role' => 'member',
+            'is_ghost' => false,
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['email']);
+    }
+
+    public function test_password_reset_throttle_returns_a_french_message(): void
+    {
+        Notification::fake();
+        config(['app.locale' => 'fr']);
+        $user = User::factory()->create();
+
+        $this->postJson('/api/v1/auth/forgot-password', ['email' => $user->email])->assertOk();
+        $this->postJson('/api/v1/auth/forgot-password', ['email' => $user->email])
+            ->assertUnprocessable()
+            ->assertJsonPath('errors.email.0', 'Une demande vient déjà d’être envoyée. Veuillez patienter une minute avant de réessayer.');
+    }
+
     public function test_members_can_submit_payments_with_mongodb_document_ids(): void
     {
         [$organization, $admin] = $this->organizationWithAdmin();

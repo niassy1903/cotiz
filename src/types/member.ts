@@ -18,4 +18,6 @@ export interface Member {
   hasTransactionAccess: boolean; // Delegated financial visibility by admin
   joinDate: string;
   avatar?: string;
+  accessLinkSent?: boolean;
+  accessLinkMessage?: string;
 }

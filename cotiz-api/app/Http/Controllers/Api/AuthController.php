@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class AuthController extends Controller
 {
@@ -320,7 +321,15 @@ class AuthController extends Controller
     {
         $request->validate(['email' => ['required', 'email']]);
 
-        $status = Password::sendResetLink($request->only('email'));
+        try {
+            $status = Password::sendResetLink($request->only('email'));
+        } catch (TransportExceptionInterface $exception) {
+            report($exception);
+
+            throw ValidationException::withMessages([
+                'email' => ['Le lien n’a pas pu être envoyé. Vérifiez la configuration Resend et le domaine de l’adresse expéditrice.'],
+            ]);
+        }
 
         if ($status !== Password::RESET_LINK_SENT) {
             throw ValidationException::withMessages(['email' => [__($status)]]);
@@ -418,6 +427,13 @@ class AuthController extends Controller
                 $code,
                 $user->first_name ?: $user->name,
             ));
+        } catch (TransportExceptionInterface $exception) {
+            $otp->delete();
+            report($exception);
+
+            throw ValidationException::withMessages([
+                'email' => ['Le code n’a pas pu être envoyé. Vérifiez la configuration Resend et le domaine de l’adresse expéditrice.'],
+            ]);
         } catch (\Throwable $exception) {
             $otp->delete();
 

@@ -10,6 +10,10 @@ use App\Support\AuditLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class MemberController extends Controller
 {
@@ -27,23 +31,37 @@ class MemberController extends Controller
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:40'],
-            'email' => ['nullable', 'email', 'max:255'],
+            'email' => [Rule::requiredIf(fn () => ! $request->boolean('is_ghost')), 'nullable', 'email', 'max:254'],
             'gender' => ['required', 'in:M,F'],
             'role' => ['required', 'in:admin,member'],
             'is_ghost' => ['required', 'boolean'],
         ]);
 
-        $linkedUser = isset($data['email']) ? User::where('email', strtolower($data['email']))->first() : null;
+        $email = isset($data['email']) ? strtolower(trim($data['email'])) : null;
+        $linkedUser = $email ? User::where('email', $email)->first() : null;
 
         if ($linkedUser && $organization->members()->where('user_id', $linkedUser->id)->exists()) {
             return response()->json(['message' => 'Ce compte est déjà membre de cette organisation.'], 422);
         }
 
-        $member = DB::transaction(function () use ($request, $organization, $data, $linkedUser): OrganizationMember {
+        [$member, $createdUser] = DB::transaction(function () use ($request, $organization, $data, $email, $linkedUser): array {
+            $user = $linkedUser;
+            if (! $data['is_ghost'] && ! $user) {
+                $user = User::create([
+                    'name' => trim($data['first_name'].' '.$data['last_name']),
+                    'first_name' => $data['first_name'],
+                    'last_name' => $data['last_name'],
+                    'phone' => $data['phone'],
+                    'email' => $email,
+                    'gender' => $data['gender'],
+                    'password' => Str::random(64),
+                ]);
+            }
+
             $member = $organization->members()->create([
                 ...$data,
-                'email' => isset($data['email']) ? strtolower($data['email']) : null,
-                'user_id' => $linkedUser?->id,
+                'email' => $email,
+                'user_id' => $user?->id,
                 'status' => 'active',
                 'has_transaction_access' => $data['role'] === 'admin',
                 'join_date' => now()->toDateString(),
@@ -51,10 +69,25 @@ class MemberController extends Controller
 
             AuditLogger::record($organization, $request->user(), 'AJOUT_MEMBRE', "Ajout de {$member->first_name} {$member->last_name}.", 'member', $member->id);
 
-            return $member;
+            return [$member, $linkedUser ? null : $user];
         });
 
-        return response()->json(['data' => $member], 201);
+        $responseData = $member->toArray();
+        if ($createdUser) {
+            try {
+                $status = Password::sendResetLink(['email' => $createdUser->email]);
+                $responseData['access_link_sent'] = $status === Password::RESET_LINK_SENT;
+                if ($status !== Password::RESET_LINK_SENT) {
+                    $responseData['access_link_message'] = __($status);
+                }
+            } catch (TransportExceptionInterface $exception) {
+                report($exception);
+                $responseData['access_link_sent'] = false;
+                $responseData['access_link_message'] = 'Le compte est créé, mais l’e-mail d’activation n’a pas pu être envoyé. Vérifiez la configuration Resend; le membre peut aussi demander un lien depuis « Mot de passe oublié ».';
+            }
+        }
+
+        return response()->json(['data' => $responseData], 201);
     }
 
     public function join(Request $request, Organization $organization): JsonResponse
