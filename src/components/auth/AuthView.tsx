@@ -5,9 +5,6 @@ import { Input } from '../common/Input';
 import { Select } from '../common/Select';
 import { Gender } from '../../types/auth';
 import { api, ApiError, getApiErrorMessage } from '../../api/client';
-import communityImage from '../../assets/images/cotiz_community_solidarity_1793623091783.jpg';
-import paymentImage from '../../assets/images/cotiz_mobile_payment_1793623091703.jpg';
-import transparencyImage from '../../assets/images/cotiz_growth_transparency_1793623092103.jpg';
 import {
   Lock,
   Mail,
@@ -17,7 +14,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
-  Sparkles,
   ArrowRight,
   KeyRound,
   Timer,
@@ -29,8 +25,7 @@ import { appLanguages, usePreferences } from '../../context/PreferencesContext';
 
 const splashSlides = [
   {
-    image: communityImage,
-    tag: 'Solidarité & Confiance',
+    tag: 'Communauté & Solidarité',
     title: 'Gérez vos cotisations en toute transparence',
     description:
       'Dahiras, tontines et associations : rassemblez vos membres, suivez les versements et gardez une trace claire de votre organisation.',
@@ -38,7 +33,6 @@ const splashSlides = [
     statLabel: 'Membres et cotisations',
   },
   {
-    image: paymentImage,
     tag: 'Suivi des Paiements',
     title: 'Règlements Wave, Orange Money et Espèces',
     description:
@@ -47,7 +41,6 @@ const splashSlides = [
     statLabel: 'Déclaration et validation',
   },
   {
-    image: transparencyImage,
     tag: 'Gouvernance & Bilan',
     title: 'Clarté financière et dépenses maîtrisées',
     description:
@@ -55,7 +48,93 @@ const splashSlides = [
     statNumber: 'Chaque dépense',
     statLabel: 'Suivie et historisée',
   },
+  {
+    tag: 'Invitations Simples',
+    title: 'Chaque membre trouve sa place',
+    description: 'Invitez les membres de votre dahira, tontine ou association et réunissez tout le monde autour du même suivi.',
+    statNumber: 'Un lien à partager',
+    statLabel: 'La communauté vous rejoint',
+  },
+  {
+    tag: 'Épargne Collective',
+    title: 'Avancez ensemble vers vos projets',
+    description: 'Fixez un objectif commun, visualisez les progrès et célébrez chaque étape franchie par votre communauté.',
+    statNumber: 'Objectif partagé',
+    statLabel: 'Une progression visible',
+  },
+  {
+    tag: 'Rappels & Échéances',
+    title: 'Les échéances au bon moment',
+    description: 'Anticipez les prochaines cotisations avec des rappels clairs et gardez votre organisation sur la bonne voie.',
+    statNumber: 'À temps',
+    statLabel: 'Des rappels bien suivis',
+  },
+  {
+    tag: 'Dépenses Traçables',
+    title: 'Chaque dépense reste documentée',
+    description: 'Consignez les sorties de caisse et conservez un historique clair, accessible aux responsables autorisés.',
+    statNumber: 'Historique clair',
+    statLabel: 'Dépenses et justificatifs',
+  },
 ];
+
+const splashArt = [
+  { kind: 'community', icon: 'people', label: 'Communauté', metric: '+24 membres' },
+  { kind: 'phone', icon: 'payment', label: 'Cotisation reçue', metric: '+25 000 FCFA' },
+  { kind: 'phone', icon: 'chart', label: 'Bilan du mois', metric: '+18,5 %' },
+  { kind: 'goal', icon: 'goal', label: 'Objectif atteint', metric: '75 %' },
+  { kind: 'calendar', icon: 'reminder', label: 'Prochaine échéance', metric: 'Dans 3 jours' },
+  { kind: 'receipt', icon: 'expense', label: 'Dépense enregistrée', metric: '12 500 FCFA' },
+  { kind: 'invite', icon: 'invite', label: 'Lien d’invitation', metric: 'Prêt à partager' },
+];
+
+const SplashIllustration: React.FC<{ index: number }> = ({ index }) => {
+  const art = splashArt[index];
+  return (
+    <div className="auth-illustration" aria-hidden="true">
+      <div className={`auth-art-scene auth-art-scene-${art.kind}`}>
+      {art.kind === 'phone' ? <>
+      <div className="auth-art-orbit auth-art-orbit-one" />
+      <div className="auth-art-orbit auth-art-orbit-two" />
+      <div className="auth-art-spark auth-art-spark-one">✦</div>
+      <div className="auth-art-spark auth-art-spark-two">✦</div>
+      <div className="auth-art-coin auth-art-coin-one">C</div>
+      <div className="auth-art-coin auth-art-coin-two">+</div>
+      <div className="auth-art-phone">
+        <div className="auth-art-notch" />
+        <div className="auth-art-screen">
+          <div className="auth-art-screen-head"><span className="auth-art-mark">C</span><strong>Cotiz</strong><span className="auth-art-menu">•••</span></div>
+          <div className="auth-art-balance">{art.label}</div>
+          <div className="auth-art-amount">{art.metric}</div>
+          <svg className="auth-art-chart" viewBox="0 0 240 95" role="presentation">
+            <path d="M4 70 C35 72 38 30 72 42 S116 85 146 57 184 20 236 29" fill="none" stroke="#ef5b0c" strokeWidth="4" strokeLinecap="round" />
+            <path d="M4 80 C42 60 55 65 84 74 S123 43 153 48 194 65 236 42" fill="none" stroke="#087b58" strokeWidth="3" strokeLinecap="round" opacity=".72" />
+            <circle cx="146" cy="57" r="6" fill="white" stroke="#ef5b0c" strokeWidth="3" />
+          </svg>
+          <div className="auth-art-row"><span className="auth-art-progress" /><span /><b>Validé</b></div>
+          <div className="auth-art-row"><span className="auth-art-progress short" /><span /><b>En cours</b></div>
+          <div className="auth-art-row"><span className="auth-art-progress mid" /><span /><b>À venir</b></div>
+        </div>
+      </div>
+      <div className="auth-art-person auth-art-person-left"><span className="auth-art-head" /><span className="auth-art-body" /><span className="auth-art-arm" /></div>
+      <div className="auth-art-person auth-art-person-right"><span className="auth-art-head" /><span className="auth-art-body" /><span className="auth-art-arm" /></div>
+      </> : art.kind === 'community' ? <>
+        <div className="auth-scene-halo" /><div className="auth-community-person p1"><i /><b /></div><div className="auth-community-person p2"><i /><b /></div><div className="auth-community-person p3"><i /><b /></div><div className="auth-community-person p4"><i /><b /></div><div className="auth-community-center">C</div><div className="auth-scene-chip chip-community">{art.metric}<small>autour d’un même projet</small></div>
+      </> : art.kind === 'goal' ? <>
+        <div className="auth-scene-halo" /><div className="auth-goal-ring ring-back" /><div className="auth-goal-ring ring-front" /><div className="auth-goal-center"><strong>75%</strong><small>de l’objectif</small></div><div className="auth-goal-coin coin-a">C</div><div className="auth-goal-coin coin-b">+</div><div className="auth-scene-chip chip-goal">Épargne collective<small>Chaque versement compte</small></div>
+      </> : art.kind === 'calendar' ? <>
+        <div className="auth-calendar"><div className="calendar-head"><span>MAI</span><b>05</b></div><div className="calendar-grid">{Array.from({length: 12}, (_, i) => <i key={i} className={i === 6 ? 'due' : ''}>{i + 1}</i>)}</div><div className="calendar-event"><b />Cotisation mensuelle</div></div><div className="auth-reminder-bubble">◷<span>Rappel envoyé<small>Votre échéance approche</small></span></div>
+      </> : art.kind === 'receipt' ? <>
+        <div className="auth-receipt"><div className="receipt-logo">C</div><strong>JUSTIFICATIF</strong><small>DÉPENSE D’ORGANISATION</small><div className="receipt-line"/><div className="receipt-line short"/><div className="receipt-total"><span>Total</span><b>{art.metric}</b></div><div className="receipt-stamp">ENREGISTRÉE</div></div><div className="auth-receipt-check">✓</div>
+      </> : <>
+        <div className="auth-invite-orbit"/><div className="invite-person invite-one"><i/><b/></div><div className="invite-person invite-two"><i/><b/></div><div className="invite-person invite-three"><i/><b/></div><div className="invite-link">↗</div><div className="auth-scene-chip chip-invite">{art.label}<small>{art.metric}</small></div>
+      </>}
+      </div>
+      {art.kind !== 'phone' && <div className="auth-art-spark auth-art-spark-one">✦</div>}
+      <div className="auth-art-ground" />
+    </div>
+  );
+};
 
 export const AuthView: React.FC = () => {
   const { login, verifyLoginOtp, resendLoginOtp, signup } = useAuth();
@@ -67,6 +146,15 @@ export const AuthView: React.FC = () => {
   const resetToken = new URLSearchParams(window.location.search).get('reset_token') || undefined;
   const resetEmail = new URLSearchParams(window.location.search).get('email') || '';
   const [mode, setMode] = useState<'signin' | 'otp' | 'signup' | 'forgot' | 'reset'>('signin');
+  const [authFlowDirection, setAuthFlowDirection] = useState(1);
+
+  const switchAuthMode = (nextMode: 'signin' | 'signup') => {
+    setAuthFlowDirection(nextMode === 'signup' ? 1 : -1);
+    setMode(nextMode);
+    setErrorMsg('');
+    setSuccessMsg('');
+    setSignupErrors({});
+  };
 
   // Carousel index
   const [activeSlide, setActiveSlide] = useState(0);
@@ -436,6 +524,7 @@ export const AuthView: React.FC = () => {
         .auth-float-card-top{top:8%;right:-1%;animation:auth-card-float 6s ease-in-out infinite}.auth-float-card-bottom{bottom:11%;left:-9%;animation:auth-card-float 7s ease-in-out infinite reverse}
         .auth-float-dot{width:.5rem;height:.5rem;border-radius:50%;background:#4ade80;box-shadow:0 0 12px #4ade80}
         .auth-mode-content{animation:auth-content-enter 380ms cubic-bezier(.2,.75,.25,1) both}.auth-card form{animation:auth-content-enter 420ms cubic-bezier(.2,.75,.25,1) both}
+        .auth-card form.auth-flow-panel{animation:auth-form-flow 520ms cubic-bezier(.2,.8,.2,1) both;transform-origin:top center}
         .auth-card{box-shadow:0 34px 90px -38px rgb(15 76 55 / 30%),0 2px 8px rgb(15 76 55 / 4%);animation:auth-card-enter 650ms cubic-bezier(.2,.8,.2,1) both}
         .auth-form-side{position:relative;overflow:hidden;isolation:isolate}
         .auth-form-side:before,.auth-form-side:after{position:absolute;z-index:-1;content:"";pointer-events:none;border-radius:50%;filter:blur(1px)}
@@ -458,6 +547,7 @@ export const AuthView: React.FC = () => {
         .auth-card-content{position:relative;z-index:1}
         @keyframes auth-art-enter{from{opacity:0;transform:translate3d(25px,18px,0) scale(.92)}to{opacity:1;transform:translate3d(0,0,0) scale(1)}}
         @keyframes auth-content-enter{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes auth-form-flow{from{opacity:0;transform:translate3d(var(--auth-flow-x),10px,0) scale(.985);filter:blur(3px)}to{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}}
         @keyframes auth-card-enter{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
         @keyframes auth-core-float{0%,100%{transform:translate3d(0,0,0) rotateX(12deg) rotateY(-16deg) rotateZ(-8deg)}50%{transform:translate3d(0,-12px,8px) rotateX(17deg) rotateY(-8deg) rotateZ(-3deg)}}
         @keyframes auth-card-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
@@ -466,36 +556,12 @@ export const AuthView: React.FC = () => {
         @keyframes auth-glow-drift{from{transform:translate3d(-10px,0,0) scale(.94)}to{transform:translate3d(15px,20px,0) scale(1.08)}}
         @media (min-width:1024px) and (max-height:780px){.auth-orbit-art{top:16%;width:min(26vw,310px)}}
         @media (max-width:1023px){.auth-field-decoration{opacity:.38}.auth-field-decoration-one{top:5%;right:3%}.auth-field-decoration-two{bottom:5%;right:2%}}
-        @media (prefers-reduced-motion:reduce){.auth-orbit-art,.auth-orbit-two,.auth-orbit-core,.auth-float-card,.auth-card,.auth-mode-content,.auth-card form,.auth-field-decoration,.auth-form-side:before,.auth-form-side:after{animation:none!important}.auth-submit:before{display:none}}
+        @media (prefers-reduced-motion:reduce){.auth-orbit-art,.auth-orbit-two,.auth-orbit-core,.auth-float-card,.auth-card,.auth-mode-content,.auth-card form,.auth-field-decoration,.auth-form-side:before,.auth-form-side:after{animation:none!important}.auth-mode-tabs .auth-tab-indicator,.auth-mode-tabs button{transition:none!important}.auth-submit:before{display:none}}
       `}</style>
       {/* LEFT COLUMN: Dynamic Splash Story Showcase (Desktop 50%, hidden or banner on mobile) */}
       <div className="auth-showcase relative w-full lg:w-1/2 min-h-[380px] lg:min-h-screen overflow-hidden flex flex-col justify-between p-6 sm:p-10 lg:p-14 select-none">
-        <div className="auth-orbit-art" aria-hidden="true">
-          <div className="auth-orbit auth-orbit-one" />
-          <div className="auth-orbit auth-orbit-two" />
-          <div className="auth-orbit-core"><Sparkles /></div>
-          <div className="auth-float-card auth-float-card-top"><ShieldCheck /><span>Transactions<br /><strong>transparentes</strong></span></div>
-          <div className="auth-float-card auth-float-card-bottom"><span className="auth-float-dot" />Communauté active <strong>+2 400</strong></div>
-        </div>
-        {/* Background Images Carousel */}
-        {splashSlides.map((slide, idx) => (
-          <div
-            key={idx}
-            className={`auth-slide absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              idx === activeSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-105 pointer-events-none'
-            }`}
-          >
-            <img
-              src={slide.image}
-              alt={slide.title}
-              className="auth-slide-image w-full h-full object-cover"
-              referrerPolicy="no-referrer"
-            />
-            {/* Scrim Overlay */}
-            <div className="auth-slide-overlay absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/30" />
-            <div className="absolute inset-0 bg-emerald-950/20 mix-blend-multiply" />
-          </div>
-        ))}
+        <div className="auth-art-backdrop" aria-hidden="true" />
+        <SplashIllustration key={activeSlide} index={activeSlide} />
 
         {/* Top Branding on Image */}
         <div className="relative z-10 flex items-center justify-between">
@@ -523,8 +589,7 @@ export const AuthView: React.FC = () => {
         <div className="relative z-10 mt-auto pt-8">
           <div className="max-w-xl space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-500/20 backdrop-blur-md border border-emerald-400/30 text-emerald-300 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>              {t(splashSlides[activeSlide].tag)}</span>
+              <span>{t(splashSlides[activeSlide].tag)}</span>
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight text-balance">
@@ -599,7 +664,7 @@ export const AuthView: React.FC = () => {
         <div className="auth-field-decoration auth-field-decoration-two" aria-hidden="true">
           <svg width="104" height="104" viewBox="0 0 104 104" fill="none"><path d="M52 8c9 17 17 25 34 34-17 9-25 17-34 34C43 59 35 51 18 42 35 33 43 25 52 8Z" fill="currentColor" fillOpacity=".13" stroke="currentColor" strokeWidth="2"/><circle cx="52" cy="42" r="7" fill="currentColor" fillOpacity=".25"/><circle cx="84" cy="79" r="8" stroke="#f59e0b" strokeWidth="2"/><path d="M84 75v8m-4-4h8" stroke="#f59e0b" strokeWidth="1.5"/></svg>
         </div>
-        <div className="auth-card w-full max-w-md rounded-2xl border p-6 sm:p-8 space-y-6">
+        <div className="auth-card w-full max-w-md rounded-2xl border p-6 sm:p-8 space-y-6" style={{ '--auth-flow-x': `${authFlowDirection * 24}px` } as React.CSSProperties}>
           <div className="flex justify-end">
             <label className="flex items-center gap-2 text-xs text-slate-500">
               <Globe className="h-4 w-4" />
@@ -653,18 +718,16 @@ export const AuthView: React.FC = () => {
 
           {/* Tab Selector: Connexion vs Inscription */}
           {mode !== 'forgot' && mode !== 'reset' && mode !== 'otp' && (
-            <div className="auth-mode-tabs grid grid-cols-2 p-1 rounded-xl text-xs font-semibold">
+            <div className={`auth-mode-tabs ${mode === 'signup' ? 'auth-mode-signup' : 'auth-mode-signin'} grid grid-cols-2 p-1 rounded-xl text-xs font-semibold`}>
+              <span className="auth-tab-indicator" aria-hidden="true" />
               <button
                 type="button"
                 onClick={() => {
-                  setMode('signin');
-                  setErrorMsg('');
-                  setSuccessMsg('');
-                  setSignupErrors({});
+                  switchAuthMode('signin');
                 }}
-                className={`py-2 rounded-lg transition-all cursor-pointer ${
+                className={`auth-mode-tab py-2 rounded-lg transition-all cursor-pointer ${
                   mode === 'signin'
-                    ? 'auth-tab-active bg-white text-slate-900 shadow-xs'
+                    ? 'auth-tab-active text-slate-900'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
                 aria-pressed={mode === 'signin'}
@@ -674,14 +737,11 @@ export const AuthView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => {
-                  setMode('signup');
-                  setErrorMsg('');
-                  setSuccessMsg('');
-                  setSignupErrors({});
+                  switchAuthMode('signup');
                 }}
-                className={`py-2 rounded-lg transition-all cursor-pointer ${
+                className={`auth-mode-tab py-2 rounded-lg transition-all cursor-pointer ${
                   mode === 'signup'
-                    ? 'auth-tab-active bg-white text-slate-900 shadow-xs'
+                    ? 'auth-tab-active text-slate-900'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
                 aria-pressed={mode === 'signup'}
@@ -705,7 +765,7 @@ export const AuthView: React.FC = () => {
 
           {/* SIGN IN FORM */}
           {mode === 'signin' && (
-            <form onSubmit={handleSignIn} className="space-y-4">
+            <form onSubmit={handleSignIn} className="auth-flow-panel space-y-4">
               <Input
                 label={t('Adresse e-mail')}
                 type="email"
@@ -846,7 +906,7 @@ export const AuthView: React.FC = () => {
 
           {/* SIGN UP FORM */}
           {mode === 'signup' && (
-            <form onSubmit={handleSignUp} className="space-y-3" noValidate>
+            <form onSubmit={handleSignUp} className="auth-flow-panel space-y-3" noValidate>
               <div className="grid grid-cols-2 gap-2">
                 <Input
                   label={t('Prénom')}
