@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../common/Button';
+import { SectionHero } from '../common/SectionHero';
 import { ContributionDetailsModal } from './ContributionDetailsModal';
 import { Contribution } from '../../types/contribution';
 import { formatFCFA, formatDate } from '../../utils/formatters';
@@ -34,25 +35,16 @@ export const ContributionsList: React.FC<ContributionsListProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            {isAdmin ? t('Gestion des Cotisations') : t('Mes Cotisations Communautaires')}
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            {isAdmin
-              ? t('Paramétrage des montants, fréquences et suivi des cycles d’échéance')
-              : t('Consultez vos cotisations et effectuez vos règlements')}
-          </p>
-        </div>
-
-        {isAdmin && (
-          <Button onClick={onOpenCreate} leftIcon={<Plus className="w-4 h-4" />}>
-            {t('Nouvelle cotisation')}
-          </Button>
-        )}
-      </div>
+      <SectionHero
+        theme="contributions"
+        eyebrow={t('Collectes de la communauté')}
+        title={isAdmin ? t('Gestion des Cotisations') : t('Mes Cotisations Communautaires')}
+        description={isAdmin
+          ? t('Paramétrage des montants, fréquences et suivi des cycles d’échéance')
+          : t('Consultez vos cotisations et effectuez vos règlements')}
+        detail={`${orgContributions.filter(c => c.status === 'active').length} ${t('cotisations actives')}`}
+        action={isAdmin && <Button onClick={onOpenCreate} leftIcon={<Plus className="w-4 h-4" />}>{t('Nouvelle cotisation')}</Button>}
+      />
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg text-xs w-fit">

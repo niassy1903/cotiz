@@ -145,9 +145,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 key={item.id}
                 onClick={() => onSelectTab(item.id)}
-                className={`w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg transition-colors cursor-pointer text-left ${
+                className={`cotiz-nav-item w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg transition-colors cursor-pointer text-left ${
                   isActive
-                    ? 'bg-emerald-800 text-white shadow-xs font-semibold'
+                    ? 'is-active bg-emerald-800 text-white shadow-xs font-semibold'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
                 }`}
               >

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../common/Button';
+import { SectionHero } from '../common/SectionHero';
 import { CreateExpenseModal } from './CreateExpenseModal';
 import { ConfirmModal } from '../common/ConfirmModal';
 import { Expense } from '../../types/expense';
@@ -74,23 +75,14 @@ export const ExpensesList: React.FC<ExpensesListProps> = ({ onOpenCreate }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            {t('Registre des Dépenses & Sorties de Caisse')}
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            {t('Total engagé :')} <span className="font-bold text-rose-700 font-tabular">{formatFCFA(totalCumulated)}</span> {t('sur')} {activeExpenses.length} {t('opérations')}
-          </p>
-        </div>
-
-        {isAdmin && (
-          <Button onClick={onOpenCreate} leftIcon={<Plus className="w-4 h-4" />}>
-            {t('Enregistrer une dépense')}
-          </Button>
-        )}
-      </div>
+      <SectionHero
+        theme="expenses"
+        eyebrow={t('Transparence de la caisse')}
+        title={t('Registre des Dépenses & Sorties de Caisse')}
+        description={`${t('Total engagé :')} ${formatFCFA(totalCumulated)} ${t('sur')} ${activeExpenses.length} ${t('opérations')}`}
+        detail={t('Historique clair des dépenses')}
+        action={isAdmin && <Button onClick={onOpenCreate} leftIcon={<Plus className="w-4 h-4" />}>{t('Enregistrer une dépense')}</Button>}
+      />
 
       {/* Category filter */}
       <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg text-xs w-fit">

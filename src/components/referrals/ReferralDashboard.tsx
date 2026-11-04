@@ -3,6 +3,7 @@ import { ReferralData } from '../../types';
 import { api, getApiErrorMessage } from '../../api/client';
 import { StatCard } from '../common/StatCard';
 import { Button } from '../common/Button';
+import { SectionHero } from '../common/SectionHero';
 import { formatFCFA, formatDate } from '../../utils/formatters';
 import { copyToClipboard } from '../../utils/helpers';
 import { Gift, Copy, Check, Users, TrendingUp, Smartphone } from 'lucide-react';
@@ -44,8 +45,16 @@ export const ReferralDashboard: React.FC = () => {
 
   if (!referralData) {
     return (
-      <div role={error ? 'alert' : undefined} className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-600">
-        {error || (isLoading ? t('Chargement du programme de parrainage…') : t('Aucun code de parrainage disponible.'))}
+      <div className="space-y-6">
+        <SectionHero
+          theme="referrals"
+          eyebrow={t('Faites grandir le réseau')}
+          title={t('Programme de Parrainage')}
+          description={t('Partagez votre code pour suivre les nouvelles organisations inscrites.')}
+        />
+        <div role={error ? 'alert' : undefined} className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-600 shadow-sm">
+          {error || (isLoading ? t('Chargement du programme de parrainage…') : t('Aucun code de parrainage disponible.'))}
+        </div>
       </div>
     );
   }
@@ -54,17 +63,14 @@ export const ReferralDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">{t('Programme de Parrainage')}</h1>
-          <p className="text-xs text-slate-500 mt-1">
-            {t('Partagez votre code pour suivre les nouvelles organisations inscrites.')}
-          </p>
-        </div>
-        <Button size="sm" variant="outline" onClick={() => void handleGenerateNewCode()} isLoading={isRotating}>
-          {t('Nouveau code promo')}
-        </Button>
-      </div>
+      <SectionHero
+        theme="referrals"
+        eyebrow={t('Faites grandir le réseau')}
+        title={t('Programme de Parrainage')}
+        description={t('Partagez votre code pour suivre les nouvelles organisations inscrites.')}
+        detail={t('Un réseau solidaire, une croissance partagée')}
+        action={<Button size="sm" variant="outline" onClick={() => void handleGenerateNewCode()} isLoading={isRotating}>{t('Nouveau code promo')}</Button>}
+      />
 
       {error && <p role="alert" className="text-xs text-rose-700">{error}</p>}
 

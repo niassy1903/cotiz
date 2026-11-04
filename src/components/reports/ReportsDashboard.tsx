@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
 import { StatCard } from '../common/StatCard';
 import { Button } from '../common/Button';
+import { SectionHero } from '../common/SectionHero';
 import { formatFCFA, formatDate, getInitials } from '../../utils/formatters';
 import {
   BarChart3,
@@ -78,18 +79,13 @@ export const ReportsDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            {t('Rapports Financiers & Bilan Analytique')}
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            {t('Indicateurs de performance, solvabilité et participation des membres')}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
+      <SectionHero
+        theme="reports"
+        eyebrow={t('Les chiffres de votre communauté')}
+        title={t('Rapports Financiers & Bilan Analytique')}
+        description={t('Indicateurs de performance, solvabilité et participation des membres')}
+        detail={`${orgMembers.length} ${t('membres analysés')}`}
+        action={<>
           {/* Period selector */}
           <div className="flex items-center gap-1 p-0.5 bg-slate-100 rounded-lg text-xs">
             {[
@@ -117,8 +113,8 @@ export const ReportsDashboard: React.FC = () => {
           >
             {t('Exporter le Bilan')}
           </Button>
-        </div>
-      </div>
+        </>}
+      />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

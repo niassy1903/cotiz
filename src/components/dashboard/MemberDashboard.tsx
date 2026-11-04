@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import { StatCard } from '../common/StatCard';
 import { Button } from '../common/Button';
+import { SectionHero } from '../common/SectionHero';
 import {
   Wallet,
   Clock,
@@ -68,33 +69,15 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
   const hasTransactionAccess = currentMember?.hasTransactionAccess ?? false;
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              {t('Bonjour')}, {user?.firstName || currentMember?.firstName} !
-            </h1>
-            <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700">
-              {t('Espace Membre')}
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 mt-1">
-            {currentOrg.name} ({currentOrg.type}) · {t('Devise FCFA')}
-          </p>
-        </div>
-
-        {/* Quick action button to pay */}
-        <Button
-          size="md"
-          variant="secondary"
-          onClick={() => onOpenMakePayment()}
-          leftIcon={<CreditCard className="w-4 h-4" />}
-        >
-          {t('Payer une cotisation')}
-        </Button>
-      </div>
+    <div className="dashboard-page space-y-6">
+      <SectionHero
+        theme="member"
+        eyebrow={t('Votre espace membre')}
+        title={`${t('Bonjour')}, ${user?.firstName || currentMember?.firstName} !`}
+        description={`${currentOrg.name} (${currentOrg.type}) · ${t('Devise FCFA')}`}
+        detail={`${t('Prochaine échéance')} : ${nextDueDate} · ${formatFCFA(nextDueAmount)}`}
+        action={<Button size="md" variant="secondary" onClick={() => onOpenMakePayment()} leftIcon={<CreditCard className="w-4 h-4" />}>{t('Payer une cotisation')}</Button>}
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -103,24 +86,28 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
           value={isUpToDate ? '0' : '1'}
           subValue={isUpToDate ? t('Toutes vos cotisations sont à jour') : t('Échéance en cours')}
           icon={<Clock className="w-4 h-4 text-amber-600" />}
+          accent="amber"
         />
         <StatCard
           label={t('Montant total dû')}
           value={formatFCFA(Math.max(0, totalDueAmount))}
           subValue={t('Pour le mois en cours')}
           icon={<AlertTriangle className="w-4 h-4 text-rose-500" />}
+          accent="rose"
         />
         <StatCard
           label={t('Paiements ce mois')}
           value={formatFCFA(paidThisMonth)}
           subValue={t('Novembre 2026')}
           icon={<CheckCircle2 className="w-4 h-4 text-emerald-700" />}
+          accent="green"
         />
         <StatCard
           label={t('Total payé (Lifetime)')}
           value={formatFCFA(totalLifetimePaid)}
           subValue={t('Depuis votre adhésion')}
           icon={<TrendingUp className="w-4 h-4 text-emerald-800" />}
+          accent="blue"
         />
       </div>
 

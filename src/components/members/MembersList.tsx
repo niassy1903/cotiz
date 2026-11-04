@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../common/Button';
+import { SectionHero } from '../common/SectionHero';
 import { AddMemberModal } from './AddMemberModal';
 import { InviteLinkModal } from './InviteLinkModal';
 import { MemberDetailsModal } from './MemberDetailsModal';
@@ -67,19 +68,13 @@ export const MembersList: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            {isAdmin ? t('Gestion des Membres') : t('Annuaire de l’Organisation')}
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            {orgMembers.filter(m => m.status === 'active').length} {t('membres actifs dans')} {currentOrg.name}
-          </p>
-        </div>
-
-        {isAdmin && (
-          <div className="flex items-center gap-2">
+      <SectionHero
+        theme="members"
+        eyebrow={t('La force du collectif')}
+        title={isAdmin ? t('Gestion des Membres') : t('Annuaire de l’Organisation')}
+        description={`${orgMembers.filter(m => m.status === 'active').length} ${t('membres actifs dans')} ${currentOrg.name}`}
+        detail={`${pendingMembers.length} ${t('demandes en attente')}`}
+        action={isAdmin && <>
             <Button
               size="sm"
               variant="outline"
@@ -95,9 +90,8 @@ export const MembersList: React.FC = () => {
             >
               {t('Ajouter un membre')}
             </Button>
-          </div>
-        )}
-      </div>
+        </>}
+      />
 
       {/* Pending Approval Banner if any */}
       {isAdmin && pendingMembers.length > 0 && (

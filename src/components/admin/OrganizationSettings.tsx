@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
 import { Button } from '../common/Button';
+import { SectionHero } from '../common/SectionHero';
 import { Input } from '../common/Input';
 import { Select } from '../common/Select';
 import { ConfirmModal } from '../common/ConfirmModal';
@@ -70,24 +71,19 @@ export const OrganizationSettings: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            Paramètres & Administration de l'Organisation
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Configuration générale, comptes de paiement Wave/OM, audit et formule SaaS
-          </p>
-        </div>
-
-        {isSaved && (
+      <SectionHero
+        theme="settings"
+        eyebrow="Votre espace, vos règles"
+        title="Paramètres & Administration de l'Organisation"
+        description="Configuration générale, comptes de paiement Wave/OM, audit et formule SaaS"
+        detail={`${currentOrg.name} · ${currentOrg.location}`}
+        action={isSaved && (
           <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
             <Check className="w-4 h-4 text-emerald-600" />
             <span>Modifications enregistrées !</span>
           </span>
         )}
-      </div>
+      />
 
       {/* Section 1: General Settings */}
       <div className="bg-white rounded-xl border border-slate-200/80 p-6 shadow-xs space-y-4">

@@ -17,7 +17,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
   const { t } = usePreferences();
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 px-3 py-1 flex items-center justify-around shadow-lg">
+    <div className="cotiz-bottom-tabs md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 px-3 py-1 flex items-center justify-around shadow-lg">
       <button
         onClick={() => onSelectTab('dashboard')}
         className={`flex flex-col items-center py-1 px-3 text-[10px] font-medium transition-colors cursor-pointer ${

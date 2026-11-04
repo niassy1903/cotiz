@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../common/Button';
+import { SectionHero } from '../common/SectionHero';
 import { Badge } from '../common/Badge';
 import { PaymentValidationModal } from './PaymentValidationModal';
 import { ConfirmModal } from '../common/ConfirmModal';
@@ -89,18 +90,13 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            {t('Registre des Paiements & Transactions')}
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            {t('Traçabilité complète des cotisations perçues par Wave, Orange Money et Espèces')}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
+      <SectionHero
+        theme="payments"
+        eyebrow={t('Suivi sécurisé des versements')}
+        title={t('Registre des Paiements & Transactions')}
+        description={t('Traçabilité complète des cotisations perçues par Wave, Orange Money et Espèces')}
+        detail={`${orgPayments.length} ${t('transactions enregistrées')}`}
+        action={<>
           <Button
             variant="outline"
             size="sm"
@@ -117,8 +113,8 @@ export const PaymentHistoryTable: React.FC<PaymentHistoryTableProps> = ({
           >
             {t('Effectuer un versement')}
           </Button>
-        </div>
-      </div>
+        </>}
+      />
 
       {exportNotice && (
         <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 flex items-center justify-between">

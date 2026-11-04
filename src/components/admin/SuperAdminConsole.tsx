@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
 import { Button } from '../common/Button';
+import { SectionHero } from '../common/SectionHero';
 import { Input } from '../common/Input';
 import { formatDate } from '../../utils/formatters';
-import { ShieldCheck, ShieldAlert, Check, X, Search, Building2, AlertTriangle } from 'lucide-react';
+import { ShieldAlert, Check, X, Search, AlertTriangle } from 'lucide-react';
 
 export const SuperAdminConsole: React.FC = () => {
   const { organizations, updateOrganization, auditLogs } = useData();
@@ -37,20 +38,13 @@ export const SuperAdminConsole: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs">
-        <div>
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-emerald-800" />
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Console Super Administrateur (Cotiz Global)
-            </h1>
-          </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Supervision de toutes les organisations créées, modération et sécurité de la plateforme
-          </p>
-        </div>
-      </div>
+      <SectionHero
+        theme="security"
+        eyebrow="Cotiz Global · Supervision"
+        title="Console Super Administrateur"
+        description="Supervision des organisations, modération et sécurité de la plateforme."
+        detail={`${organizations.length} organisations hébergées`}
+      />
 
       {/* Organizations moderation table */}
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
